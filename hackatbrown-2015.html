@@ -9,7 +9,7 @@
 
 <body>
   <h1>Welcome to Meteor!</h1>
-
+  {{> loginButtons}}
   {{> map}}
   {{> create}}
 </body>
@@ -22,6 +22,10 @@
       {{init}}
     </div>
 </template>
+
+<template name="login">
+</template>
+
 <template name="create">
 	<button id="addMarker">Add Marker</button>
 	<input id="lat" placeholder="Latitude">
