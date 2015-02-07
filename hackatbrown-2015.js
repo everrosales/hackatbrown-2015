@@ -98,10 +98,6 @@ if (Meteor.isClient) {
     }
   })
 
-  Template.create.events({
-
-  })
-
   Template.uploadItem.helpers({
 
   })
