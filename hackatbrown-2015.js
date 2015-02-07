@@ -2,6 +2,8 @@ ShareStuffDB = new Mongo.Collection("stuff");
 
 if (Meteor.isClient) {
   // counter starts at 0
+  var lat;
+  var lng;
   Session.setDefault("uploading", false);
 
   function initialize(){
@@ -35,16 +37,18 @@ if (Meteor.isClient) {
     marker.setMap(map);
   }
 
+
+
   function createUploadItem() {
     var description;
     var image;
     var name;
-    var location;
     var item  = {
       description: description, 
       image: image,
       name:  name,
-      loc: location,
+      latitude: lat,
+      longitude: lng;
     }
     return item;
   }
@@ -77,6 +81,8 @@ if (Meteor.isClient) {
         if(!place.geometry){
           return;
         }
+        lat = place.geometry.location.lat();
+        lng = place.geometry.location.lng();
         createMarkerPlace(place.geometry.location);
         if(place.geometry.viewport){
           map.fitBounds(place.geometry.viewport);
@@ -107,19 +113,19 @@ if (Meteor.isClient) {
       Session.set('uploading', false);
 
       console.log(document.getElementById("image-of-item").value);
-
       var newListing = createUploadItem();
       Meteor.call("uploadItem", newListing);
 
       return false;
     },
-    "submit form" : function(event, template){
+
+    /*"submit form" : function(event, template){
       var file = template.find('input type=["file"]').files[0];
       var reader = new FileReader();
       reader.onload = function(e) {
         model.update(id, {$set : {src: e.target.result}})
       }
-    }
+    }*/
   })
 }
 
@@ -135,17 +141,28 @@ Meteor.methods({
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorize");
     }
-    return false;
+    if (!item || item.name == '' || !item.loc) {
+      throw new Meteor.Error("invalid-data");
+    }
     ShareStuffDB.insert({
       description: item.description,
       image: item.image,
       name: item.name,
-      location: item.loc,
-      createdAt: new Data(),
+      lat: item.latitude,
+      lng: item.longitude
+      createdAt: new Date(),
       owner: Meteor.userId(),
       username: Meteor.user().username,
     });
   },
+
+
+  getUsersListings: function(username) {
+    return ShareStuffDB.find({
+      username: username
+    });
+  }
+
 
 
 })
