@@ -8,12 +8,18 @@
 </head>
 
 <body>
+  {{> bodyTemplate}}
+</body>
+
+<template name="bodyTemplate">
   <h1>Welcome to Meteor!</h1>
   {{> loginButtons}}
   {{> map}}
   {{> create}}
-</body>
-
+  {{#if uploading}}
+    {{> uploadItem}}
+  {{/if}}
+</template>
 
 
 <template name="map">
@@ -21,15 +27,29 @@
       <div id="map-canvas"></div>
       {{init}}
     </div>
-</template>
-
-<template name="login">
-</template>
+    <button type='submit' id="upload-new-item">Upload Item</button>
+ </template>
 
 <template name="create">
 	<button id="addMarker">Add Marker</button>
 	<input id="lat" placeholder="Latitude">
 	<input id="lng" placeholder="Longitude">
 	<input id="newPlace" placeholder="New Place">
+</template>
 
+<template name="uploadItem">
+  <div class="upload">
+    <input id="location-of-item" type="text"/>
+    <input id="description-of-item" type="text"/>
+    <input id="location-of-item" type="text"/>
+    <input id="image-of-item" type="text"/>
+    <input id="deposit-for-item" type="text"/>
+    <button type="submit" id="upload-item"> Upload Listing </button>
+  </div>
+</template>
+
+<template name="userAccount">
+</template>
+
+<template name="itemSearch">
 </template>

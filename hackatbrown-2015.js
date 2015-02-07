@@ -1,5 +1,8 @@
+ShareStuffDB = new Mongo.Collection("stuff");
+
 if (Meteor.isClient) {
   // counter starts at 0
+  Session.setDefault("uploading", false);
 
   function initialize(){
     
@@ -58,11 +61,24 @@ if (Meteor.isClient) {
     marker.setMap(map);
   }
 
+  Template.bodyTemplate.helpers({
+    uploading : function() {
+      return Session.get('uploading');
+    }
+  })
+
 
   Template.map.helpers({
     init : function() {
       google.maps.event.addDomListener(window, 'load', initialize);
       return '';
+    },
+  })
+
+  Template.map.events({
+    "click #upload-new-item" : function() {
+      Session.set('uploading', true);
+      return false;
     }
   })
 
@@ -76,6 +92,17 @@ if (Meteor.isClient) {
       console.log(lng);
       createMarker(lat, lng);
     }
+  })
+
+  Template.uploadItem.helpers({
+    "click #upload-item" : function() {
+      Session.set('uploading', false);
+      return false;
+    }
+  })
+
+  Template.uploadItem.events({
+
   })
 }
 
