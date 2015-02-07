@@ -14,7 +14,9 @@
 	position:absolute;
 	top:0px;
 	left:0px;
-	background: #AAA;
+	background: #FFF;
+	border-right: 1px #eee solid;
+	border-left: 1px #eee solid;
 	z-index: 1;
 }
 .map {
