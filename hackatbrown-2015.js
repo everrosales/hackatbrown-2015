@@ -43,7 +43,8 @@ if (Meteor.isClient) {
     var description;
     var image;
     var name;
-    var location;
+    var latitude = lat;
+    var longitude = lng;
     var item  = {
       description: description, 
       image: image,
