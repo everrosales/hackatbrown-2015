@@ -43,13 +43,12 @@ if (Meteor.isClient) {
     var description;
     var image;
     var name;
-    var latitude = lat;
-    var longitude = lng;
     var item  = {
       description: description, 
       image: image,
       name:  name,
-      loc: location,
+      latitude: lat,
+      longitude: lng;
     }
     return item;
   }
@@ -149,7 +148,8 @@ Meteor.methods({
       description: item.description,
       image: item.image,
       name: item.name,
-      location: item.loc,
+      lat: item.latitude,
+      lng: item.longitude
       createdAt: new Date(),
       owner: Meteor.userId(),
       username: Meteor.user().username,
