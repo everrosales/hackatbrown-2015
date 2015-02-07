@@ -117,19 +117,19 @@ if (Meteor.isClient) {
       Session.set('uploading', false);
 
       console.log(document.getElementById("image-of-item").value);
-
       var newListing = createUploadItem();
       Meteor.call("uploadItem", newListing);
 
       return false;
     },
-    "submit form" : function(event, template){
+
+    /*"submit form" : function(event, template){
       var file = template.find('input type=["file"]').files[0];
       var reader = new FileReader();
       reader.onload = function(e) {
         model.update(id, {$set : {src: e.target.result}})
       }
-    }
+    }*/
   })
 }
 
@@ -145,17 +145,27 @@ Meteor.methods({
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorize");
     }
-    return false;
+    if (!item || item.name == '' || !item.loc) {
+      throw new Meteor.Error("invalid-data");
+    }
     ShareStuffDB.insert({
       description: item.description,
       image: item.image,
       name: item.name,
       location: item.loc,
-      createdAt: new Data(),
+      createdAt: new Date(),
       owner: Meteor.userId(),
       username: Meteor.user().username,
     });
   },
+
+
+  getUsersListings: function(username) {
+    return ShareStuffDB.find({
+      username: username
+    });
+  }
+
 
 
 })
