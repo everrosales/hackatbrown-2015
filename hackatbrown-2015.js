@@ -107,9 +107,20 @@ if (Meteor.isClient) {
   Template.uploadItem.events({
     "click #upload-item" : function() {
       Session.set('uploading', false);
+
+      console.log(document.getElementById("image-of-item").value);
+
       var newListing = createUploadItem();
       Meteor.call("uploadItem", newListing);
+
       return false;
+    },
+    "submit form" : function(event, template){
+      var file = template.find('input type=["file"]').files[0];
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        model.update(id, {$set : {src: e.target.result}})
+      }
     }
   })
 }
