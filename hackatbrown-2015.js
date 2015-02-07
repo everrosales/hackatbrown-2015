@@ -2,6 +2,8 @@ ShareStuffDB = new Mongo.Collection("stuff");
 
 if (Meteor.isClient) {
   // counter starts at 0
+  var lat;
+  var lng;
   Session.setDefault("uploading", false);
 
   function initialize(){
@@ -34,6 +36,8 @@ if (Meteor.isClient) {
     });
     marker.setMap(map);
   }
+
+
 
   function createUploadItem() {
     var description;
@@ -77,6 +81,8 @@ if (Meteor.isClient) {
         if(!place.geometry){
           return;
         }
+        lat = place.geometry.location.lat();
+        lng = place.geometry.location.lng();
         createMarkerPlace(place.geometry.location);
         if(place.geometry.viewport){
           map.fitBounds(place.geometry.viewport);
