@@ -86,14 +86,14 @@ if (Meteor.isClient) {
   })
 
   Template.uploadItem.helpers({
+
+  })
+
+  Template.uploadItem.events({
     "click #upload-item" : function() {
       Session.set('uploading', false);
       return false;
     }
-  })
-
-  Template.uploadItem.events({
-
   })
 }
 
