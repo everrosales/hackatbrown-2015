@@ -12,17 +12,19 @@
 </body>
 
 <template name="bodyTemplate">
-  <h1>Welcome to Meteor!</h1>
-  {{> sidebar}}
-  {{> map}}
-  
+  <div id="bodyContainer">
+    {{> sidebar}}
+    {{> map}}
+  </div>
 </template>
 
 <template name="sidebar">
   <div id="sidebar">
     {{> loginButtons}}
-    {{> create}}
+    <br>
+
     <button type='submit' id="upload-new-item">Upload Item</button>
+    <br>
     {{#if uploading}}
       {{> uploadItem}}
     {{/if}}
@@ -30,7 +32,7 @@
 </template>
 
 <template name="map">
-	<div class="map" style="width:100%;height:100%">
+	<div class="map" style="">
       <div id="map-canvas"></div>
       {{init}}
     </div>
@@ -40,21 +42,21 @@
 	<div>add</div>
 </template>
 
-<template name="create">
-	<input id="newPlace" placeholder="New Place">
-</template>
 
 <template name="uploadItem">
-    <br>
+  <div class="upload" action="#">
     <input id="location-of-item" type="text" placeholder="Location"/>
     <br>
     <input id="description-of-item" type="text" placeholder="Description"/>
     <br>
-    Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*"/>
+    Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*" onchange="{{readFile}}"/>
+    <br>
+    <img id="output">
     <br>
     <input id="deposit-for-item" type="text" placeholder="Deposit"/>
     <br>
     <button type="submit" id="upload-item"> Upload Listing </button>
+  </div>
 </template>
 
 <template name="userAccount">
