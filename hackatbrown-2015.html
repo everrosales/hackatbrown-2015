@@ -12,31 +12,36 @@
 </body>
 
 <template name="bodyTemplate">
-  <h1>Welcome to Meteor!</h1>
-  {{> loginButtons}}
-  {{> map}}
-  {{> create}}
-  {{#if uploading}}
-    {{> uploadItem}}
-  {{/if}}
+  <div id="bodyContainer">
+    {{> sidebar}}
+    {{> map}}
+  </div>
 </template>
 
+<template name="sidebar">
+  <div id="sidebar">
+    {{> loginButtons}}
+    <br>
+
+    <button type='submit' id="upload-new-item">Upload Item</button>
+    <br>
+    {{#if uploading}}
+      {{> uploadItem}}
+    {{/if}}
+  </div>
+</template>
 
 <template name="map">
-	<div class="map" style="width:100%;height:100%">
+	<div class="map" style="">
       <div id="map-canvas"></div>
       {{init}}
     </div>
-    <button type='submit' id="upload-new-item">Upload Item</button>
 </template>
 
 <template name="login">
 	<div>add</div>
 </template>
 
-<template name="create">
-	<input id="newPlace" placeholder="New Place">
-</template>
 
 <template name="uploadItem">
   <form class="upload" action="#">
@@ -44,7 +49,9 @@
     <br>
     <input id="description-of-item" type="text" placeholder="Description"/>
     <br>
-    Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*"/>
+    Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*" onchange="{{readFile}}"/>
+    <br>
+    <img id="output">
     <br>
     <input id="deposit-for-item" type="text" placeholder="Deposit"/>
     <br>
