@@ -19,7 +19,15 @@ if (Meteor.isClient) {
           position: google.maps.ControlPosition.LEFT_CENTER
       },
     };
-    var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    
+    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  }
+
+  function createMarker(lat, lng){
+    var marker = new google.maps.Marker({
+      position: {lat:lat, lng:lng},
+      map: map
+    })
   }
 
 
@@ -27,6 +35,13 @@ if (Meteor.isClient) {
     init : function() {
       google.maps.event.addDomListener(window, 'load', initialize);
       return '';
+    }
+  })
+
+  Template.create.events({
+    "click #addMarker" : function(event){
+      var lat = document.getElementById("lat").value;
+      var lng = document.getElementById("lng").value;
     }
   })
 }
