@@ -22,8 +22,7 @@
   <div id="sidebar">
     {{> loginButtons}}
     <br>
-    {{> create}}
-    <br>
+
     <button type='submit' id="upload-new-item">Upload Item</button>
     <br>
     {{#if uploading}}
@@ -43,9 +42,6 @@
 	<div>add</div>
 </template>
 
-<template name="create">
-	<input id="newPlace" placeholder="New Place">
-</template>
 
 <template name="uploadItem">
   <form class="upload">
