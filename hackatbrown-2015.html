@@ -9,12 +9,14 @@
 
 <body>
   <h1>Welcome to Meteor!</h1>
-  {{> loginButtons}}
-  {{> map}}
-  {{> create}}
+  {{> maincontainer}}
 </body>
 
-
+<template name="maincontainer">
+  {{> loginButtons}}
+  {{> create}}
+  {{> map}}
+</template>
 
 <template name="map">
 	<div class="map" style="width:100%;height:100%">
