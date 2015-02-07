@@ -21,6 +21,7 @@ if (Meteor.isClient) {
     };
     var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
   }
+
   Session.setDefault('counter', 0);
 
   Template.hello.helpers({
