@@ -31,6 +31,7 @@ if (Meteor.isClient) {
       if(!place.geometry){
         return;
       }
+      createMarkerPlace(place.geometry.location);
       if(place.geometry.viewport){
         map.fitBounds(place.geometry.viewport);
       }else{
@@ -49,12 +50,10 @@ if (Meteor.isClient) {
     })
   }
 
-  function createMarker(lat, lng){
+  function createMarkerPlace(place){
     var marker = new google.maps.Marker({
-      position: new google.maps.LatLng(lat, lng),
-      
+      position:place
     });
-    console.log(map);
     marker.setMap(map);
   }
 
@@ -67,15 +66,7 @@ if (Meteor.isClient) {
   })
 
   Template.create.events({
-    "click #addMarker" : function(event){
-      var lat = document.getElementById("lat").value;
-      lat = +lat;
-      console.log(lat);
-      var lng = document.getElementById("lng").value;
-      lng = +lng;
-      console.log(lng);
-      createMarker(lat, lng);
-    }
+
   })
 }
 
