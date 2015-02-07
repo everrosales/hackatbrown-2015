@@ -12,22 +12,32 @@
 </body>
 
 <template name="bodyTemplate">
-  <h1>Welcome to Meteor!</h1>
-  {{> loginButtons}}
-  {{> map}}
-  {{> create}}
-  {{#if uploading}}
-    {{> uploadItem}}
-  {{/if}}
+  <div id="bodyContainer">
+    <h1>Welcome to Meteor!</h1>
+    {{> sidebar}}
+    {{> map}}
+  </div>
 </template>
 
+<template name="sidebar">
+  <div id="sidebar">
+    {{> loginButtons}}
+    <br>
+    {{> create}}
+    <br>
+    <button type='submit' id="upload-new-item">Upload Item</button>
+    <br>
+    {{#if uploading}}
+      {{> uploadItem}}
+    {{/if}}
+  </div>
+</template>
 
 <template name="map">
-	<div class="map" style="width:100%;height:100%">
+	<div class="map" style="">
       <div id="map-canvas"></div>
       {{init}}
     </div>
-    <button type='submit' id="upload-new-item">Upload Item</button>
 </template>
 
 <template name="login">

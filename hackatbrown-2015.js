@@ -60,8 +60,23 @@ if (Meteor.isClient) {
     marker.setMap(map);
   }
 
-  Template.bodyTemplate.helpers({
+  function createUploadItem() {
+    var description;
+    var image;
+    var name;
+    var location;
+    var item  = {
+      description: description, 
+      image: image,
+      name:  name,
+      loc: location,
+    }
+    return item;
+  }
+
+  Template.sidebar.helpers({
     uploading : function() {
+      console.log(Session.get('uploading'));
       return Session.get('uploading');
     }
   })
@@ -74,7 +89,7 @@ if (Meteor.isClient) {
     },
   })
 
-  Template.map.events({
+  Template.sidebar.events({
     "click #upload-new-item" : function() {
       Session.set('uploading', true);
       return false;
@@ -90,11 +105,16 @@ if (Meteor.isClient) {
   })
 
   Template.uploadItem.events({
-    /*"click #upload-item" : function() {
+    "click #upload-item" : function() {
       Session.set('uploading', false);
+
       console.log(document.getElementById("image-of-item").value);
+
+      var newListing = createUploadItem();
+      Meteor.call("uploadItem", newListing);
+
       return false;
-    },*/
+    },
     "submit form" : function(event, template){
       var file = template.find('input type=["file"]').files[0];
       var reader = new FileReader();
@@ -110,3 +130,24 @@ if (Meteor.isServer) {
     // code to run on server at startup
   });
 }
+
+
+Meteor.methods({
+  uploadItem: function(item) {
+    if (! Meteor.userId()) {
+      throw new Meteor.Error("not-authorize");
+    }
+    return false;
+    ShareStuffDB.insert({
+      description: item.description,
+      image: item.image,
+      name: item.name,
+      location: item.loc,
+      createdAt: new Data(),
+      owner: Meteor.userId(),
+      username: Meteor.user().username,
+    });
+  },
+
+
+})
