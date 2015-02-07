@@ -4,7 +4,7 @@ if (Meteor.isClient) {
   function initialize(){
     
     var mapOptions = {
-      center: new google.maps.LatLng(42.3581, -71.0636),
+      center: new google.maps.LatLng(41.82681380, -71.40298949),
       zoom: 8,
       streetViewControl: false,
       panControl: true,
