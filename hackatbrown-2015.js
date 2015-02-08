@@ -71,6 +71,7 @@ if (Meteor.isClient) {
   Template.sidebar.events({
     "click #upload-new-item" : function() {
       Session.set('uploading', true);
+      document.getElementById('upload-new-item').style.display='none';
       Meteor.flush();
       var newPlace = document.getElementById("location-of-item");
       var autocomplete = new google.maps.places.Autocomplete(newPlace);
@@ -119,6 +120,10 @@ if (Meteor.isClient) {
 
       return false;
     },
+    "click #cancel-item" : function(){
+      Session.set("uploading", false);
+      document.getElementById("upload-new-item").style.display='inline';
+    }
   })
 }
 
