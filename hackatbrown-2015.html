@@ -33,7 +33,7 @@
       {{> loginButtons}}
       <br><br><br><br><br>
       <h2 style="margin:.5em;">Share</h2>
-      <button type='submit' id="upload-new-item" class="push">Upload Item</button>
+      
     </div>    
     <br>
     {{> nearby}}
@@ -54,10 +54,28 @@
     <div id="searchTab">
       <br>
       <h2 style="margin:.5em;">Search</h2>
+      <!--{{#if gotPos}}
+      	{{#each items}}
+      		<div>
+      			name: {{name}}
+      			<br>
+      			description: {{description}}
+      			<br>
+      			address: {{address}}
+      			<br>
+      			duration: {{duration}}
+      			<br>
+      			deposit: {{deposit}}
+      			<br>
+      			<img src="{{img}}"/>
+      		</div>
+      	{{/each}}
+      {{/if}}-->
       <input id="name-to-search" type="text" placeholder="Search Me!"/>
       <br>
       <!--{{> loginButtons}}-->
     </div>    
+    <div id="itemList"></div>
     <!--<button type='submit' id="upload-new-item" class="push">Upload Item</button>
     <br>
     
@@ -107,6 +125,22 @@
 <template name="nearby">
 	<div id="nearbyDiv">
 		<button id="explore" class="push">Explore Nearby</button>
+		<div id="nearbyThings">
+		{{#if exploring}}
+		{{#each items}}
+			<li>
+				{{name}}
+				<br>
+				{{duration}}
+				<br>
+				{{deposit}}
+				<br>
+				{{description}}
+				<img src="{{img}}"/>
+			</li>
+		{{/each}}
+		{{/if}}
+		</div>
 	</div>
 </template>
 
