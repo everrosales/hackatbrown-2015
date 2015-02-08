@@ -10,6 +10,11 @@ if (Meteor.isClient) {
   Session.setDefault("uploading", false);
   Session.set('uploading-image', false);
 
+  function sleep(delay) {
+      var start = new Date().getTime();
+      while (new Date().getTime() < start + delay);
+    }
+
   function initialize(){
     
     var mapOptions = {
@@ -294,9 +299,9 @@ Meteor.methods({
     console.log(target_lat);
     console.log("target_lng");
     console.log(target_lng);
-    var lat_error = .01;
-    var lng_error = .01;
-    return ShareStuffDB.find({ 
+    var lat_error = .1;
+    var lng_error = .1;
+    results = ShareStuffDB.find({ 
       $and: [
           { $and: [
             {lat: {$gt: target_lat - lat_error}}, 
@@ -308,7 +313,31 @@ Meteor.methods({
               ]}
           ]
       });
+    sleep(1000);
+    console.log(results);
+    resultsArray = [];
+    results.collection._docs.forEach(function(elt) {
+      resultsArray.push(elt);
+    });
+    return resultsArray;
   },
+
+
+
+/*
+find({ 
+      $and: [
+          { $and: [
+            {lat: {$gt: 41.8262211 - .1}}, 
+            {lat: {$lt: 41.8262211 + .1}}
+            ]},
+          { $and: [
+              {lng: {$gt: -71.40254190000002 - .1}}, 
+              {lng: {$lt: -71.40254190000002 + .1}}
+              ]}
+          ]
+      })
+*/
 
   textSearchListings: function(searchString) {
     return ShareStuffDB.runCommand("text", { search: searchString});
