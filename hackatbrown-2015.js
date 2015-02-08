@@ -42,28 +42,16 @@ if (Meteor.isClient) {
 
 
   function createUploadItem() {
-    var description = document.getElementById("description-of-item");
+    var description = document.getElementById("description-of-item").value;
+    var name = document.getElementById("name-of-item").value;
     var item  = {
         description: description, 
-        image: image,
         name:  name,
         latitude: lat,
         longitude: lng
       }
-    var name = document.getElementById("name-of-item");
-
     return item;
-  }
-
-  function readFile(event) {
-      Session.set('uploading-image', false);
-      reader = new FileReader();
-      reader.onload = function() {
-        image = reader.result;
-        Session.set('uploading-image', true);
-      }
-      reader.readAsDataURL(event.target.files[0]);
-    }
+  } 
 
   Template.sidebar.helpers({
     uploading : function() {
@@ -125,22 +113,12 @@ if (Meteor.isClient) {
 
   Template.uploadItem.events({
     "click #upload-item" : function() {
-      //Session.set('uploading', false);
-
-      console.log(document.getElementById("image-of-item").value);
+      Session.set('uploading', false);
       var newListing = createUploadItem();
       Meteor.call("uploadItem", newListing);
 
       return false;
     },
-
-    /*"submit form" : function(event, template){
-      var file = template.find('input type=["file"]').files[0];
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        model.update(id, {$set : {src: e.target.result}})
-      }
-    }*/
   })
 }
 
@@ -156,12 +134,11 @@ Meteor.methods({
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorize");
     }
-    if (item.name == '' || !item.lat || !item.lng) {
+    if (item.name == '' || !item.latitude || !item.longitude) {
       throw new Meteor.Error("invalid-data");
     }
     ShareStuffDB.insert({
       description: item.description,
-      image: item.image,
       name: item.name,
       lat: item.latitude,
       lng: item.longitude,
