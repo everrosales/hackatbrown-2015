@@ -52,17 +52,11 @@
     <br>
     <input id="description-of-item" type="text" placeholder="Description"/>
     <br>
-    Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*" onchange="readFile(event)"/>
-    <br>
     <img id="output">
     <br>
     <input id="deposit-for-item" type="text" placeholder="Deposit"/>
     <br>
-    {{#if uploadingImage}}
-      <p> Uploading Image </p>
-    {{else}}
-      <button type="submit" id="upload-item"> Upload Listing </button>
-    {{/if}}
+    <button type="submit" id="upload-item"> Upload Listing </button>
   </div>
 </template>
 
