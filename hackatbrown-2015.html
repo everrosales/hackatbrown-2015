@@ -14,6 +14,7 @@
 <template name="bodyTemplate">
   <div id="bodyContainer">
     {{> sidebar}}
+    <div id="toggle"></div>
     {{> map}}
   </div>
 </template>
@@ -24,6 +25,7 @@
     <br><br>
     <button type='submit' id="upload-new-item">Upload Item</button>
     <br>
+
     {{#if uploading}}
       {{> uploadItem}}
     {{/if}}
