@@ -166,7 +166,7 @@ var itemKey = {};
       
       if (Meteor.userId()) {
         function findUserBorrowed() {
-          results = LentStuffDB.find({userId: Meteor.userId()});
+          results = LentStuffDB.find({borrowingUser: Meteor.userId()});
           resultsArray = [];
           results.collection._docs.forEach(function(elt) {
             resultsArray.push(elt);
@@ -372,7 +372,7 @@ function handleNoGeolocation(errorFlag) {
     },
     populatedBorrowed: function() {
       function findUserBorrowed() {
-        results = LentStuffDB.find({userId: Meteor.userId()});
+        results = LentStuffDB.find({borrowingUser: Meteor.userId()});
         resultsArray = [];
         results.collection._docs.forEach(function(elt) {
           resultsArray.push(elt);
@@ -380,23 +380,25 @@ function handleNoGeolocation(errorFlag) {
         console.log(resultsArray)
         return resultsArray;
       }
-      var borrowThings = findUserBorrowed();
-      console.log(borrowThings);
-      var list = document.getElementById('borrowed-items-list');
-      clearInnerHTML('borrowed-items-list');
-      for(var i=0; i<borrowThings.length; i++){
-        var item = borrowThings[i];
-        createItemMarker(item);
-        if(!(item in itemKey)) {
-          itemKey[item._id] = item;
+      if(Meteor.userId()) { 
+        var borrowThings = findUserBorrowed();
+        console.log(borrowThings);
+        var list = document.getElementById('borrowed-items-list');
+        clearInnerHTML('borrowed-items-list');
+        for(var i=0; i<borrowThings.length; i++){
+          var item = borrowThings[i];
+          createItemMarker(item);
+          if(!(item in itemKey)) {
+            itemKey[item._id] = item;
+          }
+          console.log("item");
+          console.log(item);
+          var dataImage = item.img;
+          var src = "data:image/png;base64," + dataImage;
+          list.insertAdjacentHTML('beforeend',
+            '<div class="itemBorrowed" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
         }
-        console.log("item");
-        console.log(item);
-        var dataImage = item.img;
-        var src = "data:image/png;base64," + dataImage;
-        list.insertAdjacentHTML('beforeend',
-          '<div class="itemBorrowed" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-          ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
       }
       return "";
 
@@ -741,7 +743,8 @@ function handleNoGeolocation(errorFlag) {
         createdAt: item.createdAt,
         owner: item.owner,
         img: item.img,
-        username: item.username
+        username: item.username,
+        borrowingUser: Meteor.userId()
       })
 
       ShareStuffDB.remove(item._id);
@@ -814,15 +817,15 @@ Meteor.methods({
       deposit: item.deposit,
       createdAt: new Date(),
       owner: Meteor.userId(),
-      username: Meteor.user().username,
+      username: Meteor.user().email,
     });
 
   },
 
 
-  getUsersListings: function(username) {
+  getUsersListings: function(name) {
     return ShareStuffDB.find({
-      username: username
+      username: name
     });
   },
 
