@@ -6,7 +6,7 @@ if (Meteor.isClient) {
   var lng;
   var image;
   Session.setDefault("uploading", false);
-  Session.set('uploading-image', true);
+  Session.set('uploading-image', false);
 
   function initialize(){
     
@@ -55,15 +55,58 @@ if (Meteor.isClient) {
     return item;
   }
 
-  function readFile(event) {
-      Session.set('uploading-image', false);
+  // Handling Image Upload and Storage
+  function getBase64Image(img) {
+    // Create an empty canvas element
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Copy the image contents to the canvas
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    // Get the data-URL formatted image
+    var dataURL = canvas.toDataURL("image/png");
+
+    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+  }
+
+  // Detects image change and displays the given image
+  Template.uploadItem.events({
+    "change #image-of-item" : function(event) {
+
+      Session.set('uploading-image', true);
+
+      var input = event.target;
       reader = new FileReader();
       reader.onload = function() {
-        image = reader.result;
-        Session.set('uploading-image', true);
+
+        var dataURL = reader.result;
+        var output = document.getElementById('output');
+        output.src = dataURL
+
+        //image = reader.result;
+        //bannerImage = document.getElementById('bannerImg');
+
+        /*
+        var output = document.getElementById('output');
+        imgData = getBase64Image(output);
+        localStorage.setItem("imgData", imgData);
+        */
+        /*
+        var dataImage = localStorage.getItem('imgData');
+        bannerImg = document.getElementById('tableBanner');
+        bannerImg.src = "data:image/png;base64," + dataImage;
+        */
+
+        Session.set('uploading-image', false);
+
       }
       reader.readAsDataURL(event.target.files[0]);
     }
+  })
+  
 
   Template.sidebar.helpers({
     uploading : function() {
