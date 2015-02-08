@@ -28,6 +28,10 @@
     {{#if borrowActive}}
       {{> borrowConfirmation}}
     {{/if}}
+
+    {{#if returnActive}}
+      {{> returnItem}}
+    {{/if}}
   </div>
 </template>
 
@@ -209,6 +213,12 @@
       </div>
 
     </div>
+  </div>
+</template>
 
+<template name="returnItem">
+  <div id="returnItem">
+    Was {{itemName}} returned to {{ownerEmail}}?<br>
+    <button id="success" class="push" type="submit">Yes</button> <button id="cancel" class="push" type="submit">No</button>
   </div>
 </template>

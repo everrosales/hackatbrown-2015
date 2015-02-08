@@ -19,6 +19,8 @@ if (Meteor.isClient) {
   Session.setDefault('uploading-image', false);
   Session.setDefault('borrow-confirmation', false);
   Session.setDefault('borrow-item', null);
+  Session.setDefault("returnActive", false);
+  Session.setDefault("returnItem", null);
   function findUserBorrowed() {
     results = LentStuffDB.find({/*userId: Meteor.userId()*/});
     resultsArray = [];
@@ -362,6 +364,10 @@ function handleNoGeolocation(errorFlag) {
 
     borrowActive: function() {
       return Session.get("borrow-confirmation");
+    },
+
+    returnActive: function() {
+      return Session.get("returnActive");
     }
   })
   Template.splashTemplate.helpers ({
@@ -437,6 +443,7 @@ function handleNoGeolocation(errorFlag) {
     login: function() {
       return !Meteor.userId();
     }
+
   })
 
 
@@ -523,6 +530,14 @@ function handleNoGeolocation(errorFlag) {
     "click #shared-items-button": function() {
       document.getElementById("borrowed-tab").style.display = "none";
       document.getElementById("shared-tab").style.display = "block";
+    },
+
+    "click .itemBorrowed": function(event) {
+      console.log(event.target);
+      var item = itemKey[event.target.id];
+      Session.set("returnActive", true);
+      Session.set("returnItem", item);
+
     }
   })
 
@@ -724,6 +739,33 @@ function handleNoGeolocation(errorFlag) {
       Session.set("borrow-item", null);
     }
   })
+
+  Template.returnItem.helpers({
+    ownerEmail: function() {
+      item = Session.get("returnItem");
+      return item.username;
+    },
+
+    itemName: function() {
+      item = Session.get("returnItem");
+      return item.name;
+    },
+  })
+
+  Template.returnItem.events({
+    "click #success": function(event) {
+      item = Session.get("returnItem");
+      Meteor.call("returnItem", item.id);
+      Session.set("returnItem", null);
+      Session.set("returnActive", false);
+    },
+
+    "click #cancel" : function(event) {
+      Session.set("returnItem", null);
+      Session.set("returnActive", false);
+    }
+  })
+
 }
 
 if (Meteor.isServer) {
@@ -760,7 +802,7 @@ Meteor.methods({
       deposit: item.deposit,
       createdAt: new Date(),
       owner: Meteor.userId(),
-      username: Meteor.user().email,
+      username: Meteor.user().emails[0].address,
     });
   },
 
@@ -783,6 +825,9 @@ Meteor.methods({
       ShareStuffDB.remove(item._id);
   },
 
+  returnItem: function(id) {
+    LentStuffDB.remove(id);
+  },
 
   getUsersListings: function(name) {
     return ShareStuffDB.find({
