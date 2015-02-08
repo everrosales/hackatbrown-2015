@@ -14,6 +14,7 @@
 <template name="bodyTemplate">
   <div id="bodyContainer">
     {{> sidebar}}
+    {{> searchSidebar}}
     <div id="toggle"></div>
     {{> map}}
   </div>
@@ -21,11 +22,22 @@
 
 <template name="sidebar">
   <div id="sidebar">
-    {{> loginButtons}}
-    {{> nearby}}
+    
+    
     <br><br>
     
     
+
+    <div id="accountTab">
+      <br>
+      {{> loginButtons}}
+      <br><br><br><br><br>
+      <h2 style="margin:.5em;">Share</h2>
+      <button type='submit' id="upload-new-item" class="push">Upload Item</button>
+    </div>    
+    <br>
+    {{> nearby}}
+
     
     {{#if uploading}}
       {{> uploadItem}}
@@ -34,6 +46,24 @@
 	    <br>
 
     {{/if}}
+  </div>
+</template>
+
+<template name="searchSidebar">
+  <div id="searchSidebar">
+    <div id="searchTab">
+      <br>
+      <h2 style="margin:.5em;">Search</h2>
+      <input id="name-to-search" type="text" placeholder="Search Me!"/>
+      <br>
+      <!--{{> loginButtons}}-->
+    </div>    
+    <!--<button type='submit' id="upload-new-item" class="push">Upload Item</button>
+    <br>
+    
+    {{#if uploading}}
+      {{> uploadItem}}
+    {{/if}}-->
   </div>
 </template>
 
@@ -81,4 +111,7 @@
 </template>
 
 <template name="itemSearch">
+</template>
+
+<template name="bottomBar">
 </template>
