@@ -2,8 +2,9 @@ ShareStuffDB = new Mongo.Collection("stuff");
 LentStuffDB = new Mongo.Collection("lent");
 
 if (Meteor.isClient) {
-
-var itemKey = {};
+  Meteor.subscribe("stuff");
+  Meteor.subscribe("lent");
+  var itemKey = {};
 
   pos = 41.8263;
   var curMarkers = [];
@@ -19,7 +20,7 @@ var itemKey = {};
   Session.setDefault('borrow-confirmation', false);
   Session.setDefault('borrow-item', null);
   function findUserBorrowed() {
-    results = LentStuffDB.find({userId: Meteor.userId()});
+    results = LentStuffDB.find({/*userId: Meteor.userId()*/});
     resultsArray = [];
     results.collection._docs.forEach(function(elt) {
       resultsArray.push(elt);
@@ -70,6 +71,7 @@ var itemKey = {};
     console.log(resultsArray2);
     return resultsArray2;
   }
+
   function makeSidePanels(parentHTML, divClass, shareDBbool){
     console.log("going");
     if(pos != null && pos != undefined){
@@ -176,7 +178,7 @@ var itemKey = {};
       console.log("set gotPos to true");
 
       console.log("inside items")
-      function nearbyListings(target_lat, target_lng) {
+      /*function nearbyListings(target_lat, target_lng) {
         var lat_error = .1;
         var lng_error = .1;
         results = ShareStuffDB.find({ 
@@ -198,12 +200,12 @@ var itemKey = {};
           resultsArray.push(elt);
         });
         return resultsArray;
-      }
-
-      makeSidePanels("itemList","itemListing", true);
+      }*/
+      itemArray = nearbyListings(pos.lat(), pos.lng());
+      makeSidePanels("itemList","itemListing", itemArray, true);
         
-        
-        makeSidePanels("borrowed-items-list","itemBorrowed",false);
+      itemArray = findUserBorrowed();
+      makeSidePanels("borrowed-items-list","itemBorrowed", itemArray, false);
         
       if (Meteor.userId()) {
         function findUserBorrowed() {
@@ -424,45 +426,12 @@ function handleNoGeolocation(errorFlag) {
     userId: function(){
       return Meteor.userId();
     },
-    populatedBorrowed: function() {
-      return populateBorrowed();
+    populatedBorrowed: function()  {
+      itemArray = findUserBorrowed();
+      makeSidePanels("borrowed-items-list","itemBorrowed", itemArray, false);
+      return "";
     }
   })
-
-  function populateBorrowed() {
-      function findUserBorrowed() {
-        results = LentStuffDB.find({borrowingUser: Meteor.userId()});
-        resultsArray = [];
-        results.collection._docs.forEach(function(elt) {
-          resultsArray.push(elt);
-        });
-        console.log(resultsArray)
-        return resultsArray;
-      }
-      makeSidePanels("borrowed-items-list", "itemBorrowed", false);
-      if(Meteor.userId()) { 
-        var borrowThings = findUserBorrowed();
-        console.log(borrowThings);
-        var list = document.getElementById('borrowed-items-list');
-        clearInnerHTML('borrowed-items-list');
-        for(var i=0; i<borrowThings.length; i++){
-          var item = borrowThings[i];
-          createItemMarker(item);
-          if(!(item in itemKey)) {
-            itemKey[item._id] = item;
-          }
-          console.log("item");
-          console.log(item);
-          var dataImage = item.img;
-          var src = "data:image/png;base64," + dataImage;
-          list.insertAdjacentHTML('beforeend',
-            '<div class="itemBorrowed" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
-        }
-      }
-      return "";
-
-    }
 
   Template.searchSidebar.helpers({
     login: function() {
@@ -626,7 +595,8 @@ function handleNoGeolocation(errorFlag) {
         });
         return resultsArray;
       }
-      makeSidePanels("itemList", "itemListing",true);
+      itemArray = nearbyListings(pos.lat(), pos.lng());
+      makeSidePanels("itemList","itemListing", itemArray, true);
 
     }, 100);
 
@@ -740,38 +710,35 @@ function handleNoGeolocation(errorFlag) {
     "click #confirm-borrow" : function() {
       Session.set("borrow-confirmation", false);
       var item = Session.get("borrow-item");
-      LentStuffDB.insert({
-        description: item.description,
-        name: item.name,
-        latitude: item.latitude,
-        longitude: item.longitude,
-        address: item.address,
-        duration: item.duration,
-        deposit: item.deposit,
-        createdAt: item.createdAt,
-        owner: item.owner,
-        img: item.img,
-        username: item.username,
-        borrowingUser: Meteor.userId()
-      })
-
-      ShareStuffDB.remove(item._id);
-      
+      Meteor.call("borrowItem", item);
       for(var i=0; i<curMarkers.length;i++){
         if(curMarkers[i].data == item._id){
           curMarkers[i].setMap(null);
           curMarkers.splice(i, 1);
         }
       }
+<<<<<<< HEAD
       makeSidePanels("itemList","itemListing",true);
       makeSidePanels("borrowed-items-list","itemBorrowed", false);
       
+=======
+      itemArray = nearbyListings(pos.lat(), pos.lng());
+      makeSidePanels("itemList","itemListing", itemArray, true);
+>>>>>>> d1b374cf33a1b994256ba6f5d758bbbab8e99d49
       Session.set("borrow-item", null);
     }
   })
 }
 
 if (Meteor.isServer) {
+  Meteor.publish("stuff", function() {
+    return ShareStuffDB.find({});
+  })
+
+  Meteor.publish("lent", function() {
+    return LentStuffDB.find({borrowingUser : this.userId})
+  })
+
   Meteor.startup(function () {
 
   });
@@ -799,7 +766,25 @@ Meteor.methods({
       owner: Meteor.userId(),
       username: Meteor.user().email,
     });
+  },
 
+  borrowItem: function(item) {
+    LentStuffDB.insert({
+        description: item.description,
+        name: item.name,
+        latitude: item.latitude,
+        longitude: item.longitude,
+        address: item.address,
+        duration: item.duration,
+        deposit: item.deposit,
+        createdAt: item.createdAt,
+        owner: item.owner,
+        img: item.img,
+        username: item.username,
+        borrowingUser: Meteor.userId()
+      })
+
+      ShareStuffDB.remove(item._id);
   },
 
 
