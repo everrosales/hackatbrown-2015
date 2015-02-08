@@ -11,6 +11,11 @@
 	color: #FFFFFF;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+#borrowed-items-list{
+	height:250px;
+	overflow-y:auto;
+
+}
 
 #splashContainer {
 	position: absolute;
