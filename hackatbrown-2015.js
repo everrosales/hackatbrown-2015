@@ -526,7 +526,43 @@ function handleNoGeolocation(errorFlag) {
         bar.style.marginRight = "-200px";
         document.getElementById('rightIntro').style.right = "40px";
       }
+    },
+    "click #do-the-thing": function() {
+      var searchString = document.getElementById('name-to-search').value;
+      if(pos != null && pos != undefined){
+      var itemList;
+      itemList = nearbyListings(pos.lat(), pos.lng());
+      resultsArray2 = [];
+      for (var i = 0; i < resultsArray.length; i+= 1) {
+        item = resultsArray[i];
+        console.log(item.lat);
+        if ((item.name.indexOf(searchString)> -1) || (item.description.indexOf(searchString) > -1)) {
+          resultsArray2.push(item);
+        }
+      }
+      console.log(resultsArray2);
+      var list = document.getElementById("itemList");
+        clearInnerHTML("itemList");
+        for(var i=0; i<resultsArray2.length; i++){
+          var item = resultsArray2[i];
+          createItemMarker(item);
+          
+          if(!(item in itemKey)){
+            itemKey[item._id] = item;
+          }
+          console.log("item");
+          console.log(item);
+          var allInfo = getAllInfo(item);
+          var dataImage = item.img;
+          var src = "data:image/png;base64," + dataImage;
+          list.insertAdjacentHTML('beforeend',
+            '<div class=' +  "itemListing"+' id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%"><strong>'+item.name+'</strong><br>Address: ' +allInfo['address']+'<br>Duration: ' +allInfo['duration']+
+            '<br>Deposit: ' + allInfo['deposit'] + '<br>Description: ' + allInfo['description']+'<br>Owner: '+ allInfo['username']+'</div>');
+          sidePanelToMarkerListener(item._id);
+      }
     }
+    return "";
+  }
   })
   Template.sidebar.events({
     "click #upload-new-item" : function() {
