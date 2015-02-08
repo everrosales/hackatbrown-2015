@@ -47,11 +47,11 @@
 
 <template name="uploadItem">
   <div class="upload" action="#">
-    <input id="name-of-item" type="text" placeholder="Name"/>
+    <input id="name-of-item" type="text" placeholder="Item Name"/>
     <br>
-    <input id="location-of-item" type="text" placeholder="Location"/>
+    <input id="location-of-item" type="text" placeholder="Location of Item"/>
     <br>
-    <input id="description-of-item" type="text" placeholder="Description"/>
+    <input id="description-of-item" type="text" placeholder="Item Description"/>
     <br>
 
     Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*" />
@@ -59,8 +59,9 @@
     <br>
     <img id="output" style="max-width:150px;max-height:150px;">
     <br>
-    <input id="deposit-for-item" type="text" placeholder="Deposit"/>
+    <input id="deposit-for-item" type="text" placeholder="Deposit for Item"/>
     <br>
+    <input id="duration" type="text" placeholder="Lending duration"/>
     <button id="upload-item" class="push"> Upload Listing </button>
     <button id="cancel-item" class="push">Cancel</button>
   </div>
