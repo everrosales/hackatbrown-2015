@@ -89,11 +89,15 @@ function handleNoGeolocation(errorFlag) {
     var description = document.getElementById("description-of-item").value;
     var name = document.getElementById("name-of-item").value;
     var output = document.getElementById('output');
+    var deposit = document.getElementById('deposit-for-item');
+    var duration = document.getElementById('duration');
     var imgData = getBase64Image(output);
     var item  = {
         description: description, 
         name:  name,
         img: imgData,
+        deposit: deposit,
+        duration:duration
         latitude: lat,
         longitude: lng
       }
@@ -249,6 +253,8 @@ Meteor.methods({
       lat: item.latitude,
       lng: item.longitude,
       img: item.img,
+      duration:item.duration,
+      deposit: item.deposit,
       createdAt: new Date(),
       owner: Meteor.userId(),
       username: Meteor.user().username,
