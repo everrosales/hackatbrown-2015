@@ -82,7 +82,7 @@ h3 {
 #itemList{
 	height:85%;
 	overflow-y:auto;
-	background: #fff;
+	/*background: #fff;*/
 	text-align: center;
 }
 #sidebar {
