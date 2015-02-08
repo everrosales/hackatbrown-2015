@@ -186,7 +186,7 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    // code to run on server at startup
+
   });
 }
 
@@ -235,9 +235,8 @@ Meteor.methods({
       });
   },
 
-
-
-
-
+  textSearchListings: function(searchString) {
+    return ShareStuffDB.runCommand("text", { search: searchString});
+  }
 
 })
