@@ -338,6 +338,15 @@ function handleNoGeolocation(errorFlag) {
     },
     login: function() {
       return !Meteor.userId();
+    },
+    user: function(){
+      return Meteor.user();
+    },
+    username: function(){
+      return Meteor.user().username;
+    }
+    userId: function(){
+      return Meteor.userId();
     }
   })
 
