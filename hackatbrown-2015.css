@@ -87,7 +87,7 @@ h3 {
 	text-align: center;
 	width: 230px;
 	height:100%;
-	margin-left:0px;
+	margin-left:-200px;
 	position:absolute;
 	top:0px;
 	left:0px;
@@ -115,7 +115,7 @@ h3 {
 	text-align: center;
 	width: 230px;
 	height:100%;
-	margin-right:0px; /* -200 */
+	margin-right:-200px; /* -200 */
 	position:absolute;
 	top:0px;
 	right:0px;
