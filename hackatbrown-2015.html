@@ -21,6 +21,8 @@
       {{> splashTemplate}}
     {{else}}
       <h3 id="productTitle">UNeed</h3>
+      <h3 id="leftIntro"> - I want to share something</h3>
+      <h3 id="rightIntro">I'm looking for something - </h3>
     {{/if}}
 
     {{#if borrowActive}}
@@ -54,9 +56,7 @@
       {{else}}
       	{{> makeUsername}}
       {{/if}}
-      <br><br><br><br><br>
-      <h2 style="margin:.5em;">Share</h2>
-      
+      <br>
     </div>    
     <br>
 
@@ -67,16 +67,25 @@
     {{else}}
 	    <button type='submit' id="upload-new-item" class="push">Upload Item</button>
 	    <br>
-
     {{/if}}
     {{#if login}}
       {{populatedBorrowed}}
     {{/if}}
     <hr class="shortHr">
+<button type='submit' id="borrowed-items-button" class="push">Borrowed</button>
+<button type='submit' id="shared-items-button" class="push">Shared</button>
+<br>
+   <div id="borrowed-tab">
     <h2 style="margin:.5em;">My Borrowed</h2>
     <div id="borrowed-items-list"></div>
   </div>
+  <div id="shared-tab">
+    <h2 style="margin:.5em;">My Shared</h2>
+    <div id="shared-items-list"></div>
+  </div>
+  </div>
 </template>
+
 <template name="makeUsername">
 	<input type="text" placeholder="Please enter a username">
 </template>
