@@ -106,7 +106,10 @@ if (Meteor.isClient) {
           var item = nearbyThings[i];
           console.log("item");
           console.log(item);
-          list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
+          var dataImage = item.img;
+          var src = "data:image/png;base64," + dataImage;
+          list.insertAdjacentHTML('beforeend',
+            '<div class="itemListing" style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
             ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
 
         }
@@ -207,12 +210,12 @@ function handleNoGeolocation(errorFlag) {
     console.log("inside getImage");
     // Create an empty canvas element
     var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = 200;
+    canvas.height = 200;
 
     // Copy the image contents to the canvas
     var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     // Get the data-URL formatted image
     var dataURL = canvas.toDataURL("image/png");
@@ -404,7 +407,7 @@ function handleNoGeolocation(errorFlag) {
           var item = nearbyThings[i];
           console.log("item");
           console.log(item);
-          list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
+          list.insertAdjacentHTML('beforeend','<div class="itemListing">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
             ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
 
         }
