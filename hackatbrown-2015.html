@@ -15,10 +15,12 @@
   <div id="bodyContainer">
     {{> sidebar}}
     {{> searchSidebar}}
-    <div id="toggle"></div>
+    <!--<div id="toggle"></div>-->
     {{> map}}
     {{#if login}}
       {{> splashTemplate}}
+    {{else}}
+      <h3 id="productTitle">UNeed</h3>
     {{/if}}
 
     {{#if borrowActive}}
@@ -57,7 +59,6 @@
       
     </div>    
     <br>
-    
 
       
     
