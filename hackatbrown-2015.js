@@ -153,7 +153,27 @@ Meteor.methods({
     return ShareStuffDB.find({
       username: username
     });
-  }
+  },
+
+  nearbyListings: function(target_lat, target_lng) {
+    var lat_error = .01;
+    var lng_error = .01;
+    return ShareStuffDB.find({ 
+      $and: [
+          { $and: [
+            {lat: {$gt: target_lat - lat_error}}, 
+            {lat: {$lt: target_lat + lat_error}}
+            ]},
+          { $and: [
+              {lng: {$gt: target_lng - lng_error}}, 
+              {lng: {$lt: target_lng + lng_error}}
+              ]}
+          ]
+      });
+  },
+
+
+
 
 
 
