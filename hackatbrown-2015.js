@@ -754,6 +754,13 @@ function handleNoGeolocation(errorFlag) {
       })
 
       ShareStuffDB.remove(item._id);
+      
+      for(var i=0; i<curMarkers.length;i++){
+        if(curMarkers[i].data == item._id){
+          curMarkers[i].setMap(null);
+          curMarkers.splice(i, 1);
+        }
+      }
       if(pos != null && pos != undefined){
         
         nearbyThings = nearbyListings(pos.lat(), pos.lng());
