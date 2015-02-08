@@ -271,6 +271,19 @@ function handleNoGeolocation(errorFlag) {
     },
   })
 
+  Template.searchSidebar.events({
+    "click #searchSidebar" : function() {
+      console.log("click");
+      var bar = document.getElementById('searchSidebar');
+      var barMargin = bar.style.marginRight.replace("px","");
+
+      if (barMargin == "-200" || barMargin == "") {
+        bar.style.marginRight = "0px";
+      } else {
+        bar.style.marginRight = "-200px";
+      }
+    }
+  })
   Template.sidebar.events({
     "click #upload-new-item" : function() {
       Session.set('uploading', true);
@@ -307,6 +320,17 @@ function handleNoGeolocation(errorFlag) {
         autowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
       })
       return false;
+    },
+
+    "click #sidebar" : function() {
+      console.log("click");
+      var bar = document.getElementById('sidebar');
+      var barMargin = bar.style.marginLeft.replace("px","");
+      if (barMargin == "-200" || barMargin == "") {
+        bar.style.marginLeft = "0px";
+      } else {
+        bar.style.marginLeft = "-200px";
+      }
     }
   })
 
