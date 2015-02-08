@@ -243,11 +243,40 @@ function handleNoGeolocation(errorFlag) {
   })
 
   Template.nearby.events({
+
+
     "click #explore" : function(){
+      function nearbyListings(target_lat, target_lng) {
+        console.log("target_lat");
+        console.log(target_lat);
+        console.log("target_lng");
+        console.log(target_lng);
+        var lat_error = .1;
+        var lng_error = .1;
+        results = ShareStuffDB.find({ 
+          $and: [
+              { $and: [
+                {lat: {$gt: target_lat - lat_error}}, 
+                {lat: {$lt: target_lat + lat_error}}
+                ]},
+              { $and: [
+                  {lng: {$gt: target_lng - lng_error}}, 
+                  {lng: {$lt: target_lng + lng_error}}
+                  ]}
+              ]
+          });
+        console.log(results);
+        resultsArray = [];
+        results.collection._docs.forEach(function(elt) {
+          resultsArray.push(elt);
+        });
+        return resultsArray;
+      }
+
       if(pos != null && pos != undefined){
         console.log("pos_lat");
         console.log(pos.lat());
-        var nearbyThings = Meteor.call("nearbyListings", pos.lat(), pos.lng());
+        var nearbyThings = nearbyListings( pos.lat(), pos.lng());
         console.log(nearbyThings);
       }else{
         //error message saying location services disabled
@@ -294,33 +323,7 @@ Meteor.methods({
     });
   },
 
-  nearbyListings: function(target_lat, target_lng) {
-    console.log("target_lat");
-    console.log(target_lat);
-    console.log("target_lng");
-    console.log(target_lng);
-    var lat_error = .1;
-    var lng_error = .1;
-    results = ShareStuffDB.find({ 
-      $and: [
-          { $and: [
-            {lat: {$gt: target_lat - lat_error}}, 
-            {lat: {$lt: target_lat + lat_error}}
-            ]},
-          { $and: [
-              {lng: {$gt: target_lng - lng_error}}, 
-              {lng: {$lt: target_lng + lng_error}}
-              ]}
-          ]
-      });
-    sleep(1000);
-    console.log(results);
-    resultsArray = [];
-    results.collection._docs.forEach(function(elt) {
-      resultsArray.push(elt);
-    });
-    return resultsArray;
-  },
+  
 
 
 
