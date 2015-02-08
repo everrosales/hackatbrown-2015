@@ -2,6 +2,7 @@ ShareStuffDB = new Mongo.Collection("stuff");
 LentStuffDB = new Mongo.Collection("lent");
 
 if (Meteor.isClient) {
+
 var itemKey = {};
 
   pos = 41.8263;
@@ -17,9 +18,87 @@ var itemKey = {};
   Session.setDefault('uploading-image', false);
   Session.setDefault('borrow-confirmation', false);
   Session.setDefault('borrow-item', null);
-
+  function findUserBorrowed() {
+    results = LentStuffDB.find({userId: Meteor.userId()});
+    resultsArray = [];
+    results.collection._docs.forEach(function(elt) {
+      resultsArray.push(elt);
+    });
+    console.log(resultsArray)
+    return resultsArray;
+  }
   function clearInnerHTML(id){
     document.getElementById(id).innerHTML = "";
+  }
+  function nearbyListings(target_lat, target_lng) {
+    var lat_error = .1;
+    var lng_error = .1;
+    results = ShareStuffDB.find({ 
+      $and: [
+          { $and: [
+            {lat: {$gt: target_lat - lat_error}}, 
+            {lat: {$lt: target_lat + lat_error}}
+            ]},
+          { $and: [
+              {lng: {$gt: target_lng - lng_error}}, 
+              {lng: {$lt: target_lng + lng_error}}
+              ]}
+          ]
+      });
+    //console.log(results);
+    resultsArray = [];
+    results.collection._docs.forEach(function(elt) {
+      resultsArray.push(elt);
+    });
+    return resultsArray;
+  }
+  function makeSidePanels(parentHTML, divClass, shareDBbool){
+    if(pos != null && pos != undefined){
+      var itemList;
+        if(shareDBbool){
+          itemList = nearbyListings(pos.lat(), pos.lng());
+        }else{
+          itemList = findUserBorrowed();
+        }//add else statement to put item list for different database
+        var list = document.getElementById(parentHTML);
+        clearInnerHTML(parentHTML);
+        for(var i=0; i<itemList.length; i++){
+          var item = itemList[i];
+          if(shareDBbool){
+            createItemMarker(item);
+          }
+          
+          if(!(item in itemKey)){
+            itemKey[item._id] = item;
+          }
+          console.log("item");
+          console.log(item);
+          var dataImage = item.img;
+          var src = "data:image/png;base64," + dataImage;
+          list.insertAdjacentHTML('beforeend',
+            '<div class=' +  divClass+' id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
+          sidePanelToMarkerListener(item._id);
+      }
+    }else{
+      //
+    }
+  }
+  function sidePanelToMarkerListener(itemID){
+    document.getElementById(itemID).addEventListener("click", function(){
+      var markerMatch;
+      allMarkersStill();
+      for(var i=0; i<curMarkers.length; i++){
+        if(curMarkers[i].data == this.id){
+          markerMatch = curMarkers[i];
+        }
+      }
+      if(markerMatch != null && markerMatch != undefined){
+        markerMatch.setAnimation(google.maps.Animation.BOUNCE);
+        infowindow.setContent(getWindowInfo(itemKey[this.id]));
+        infowindow.open(map, markerMatch);
+      }
+    })
   }
 
   function getWindowInfo(itemInfo){
@@ -65,6 +144,7 @@ var itemKey = {};
   }
 
   function initialize(){
+    infowindow = new google.maps.InfoWindow();
     curMarkers = [];
     console.log("inside initialize");
     
@@ -120,86 +200,19 @@ var itemKey = {};
         return resultsArray;
       }
 
-      if(pos != null && pos != undefined){
+      makeSidePanels("itemList","itemListing", true);
         
-        nearbyThings = nearbyListings(pos.lat(), pos.lng());
-        var list = document.getElementById('itemList');
-        clearInnerHTML('itemList');
-        for(var i=0; i<nearbyThings.length; i++){
-          var item = nearbyThings[i];
-          createItemMarker(item);
-          if(!(item in itemKey)){
-            itemKey[item._id] = item;
-          }
-          console.log("item");
-          console.log(item);
-          var dataImage = item.img;
-          var src = "data:image/png;base64," + dataImage;
-          list.insertAdjacentHTML('beforeend',
-            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%"><b>'+item.name+
-            '</b> <br>Loc: ' +item.address+ 
-            ' <br>Description: ' + item.description+
-            ' <br>Dur: ' +item.duration+
-            ' <br>Deposit: $' + item.deposit+ '</div>');
-          document.getElementById(item._id).addEventListener("click", function(){
-            var markerMatch;
-            allMarkersStill();
-            for(var i=0; i<curMarkers.length; i++){
-              if(curMarkers[i].data == this.id){
-                markerMatch = curMarkers[i];
-              }
-            }
-            if(markerMatch != null && markerMatch != undefined){
-              markerMatch.setAnimation(google.maps.Animation.BOUNCE);
-              map.setCenter(markerMatch.getPosition());
-              map.setZoom(17);
-              infowindow.setContent(getWindowInfo(itemKey[this.id]));
-              infowindow.open(map, markerMatch);
-            }
-          })
-
-        }
         
-      }else{
-        //error message saying location services disabled
-      }
+        makeSidePanels("borrowed-items-list","itemBorrowed",false);
+        
       
-      if (Meteor.userId()) {
-        function findUserBorrowed() {
-          results = LentStuffDB.find({userId: Meteor.userId()});
-          resultsArray = [];
-          results.collection._docs.forEach(function(elt) {
-            resultsArray.push(elt);
-          });
-          console.log(resultsArray)
-          return resultsArray;
-        }
-        var borrowThings = findUserBorrowed();
-        console.log(borrowThings);
-        var list = document.getElementById('borrowed-items-list');
-        clearInnerHTML('borrowed-items-list');
-        for(var i=0; i<borrowThings.length; i++){
-          var item = borrowThings[i];
-          createItemMarker(item);
-          if(!(item in itemKey)) {
-            itemKey[item._id] = item;
-          }
-          console.log("item");
-          console.log(item);
-          var dataImage = item.img;
-          var src = "data:image/png;base64," + dataImage;
-          list.insertAdjacentHTML('beforeend',
-            '<div class="itemBorrowed" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
-        }
-      }
 
       var marker = new google.maps.Marker({
         map: map,
         position: pos,
         title: "Current location"
       });
-      infowindow = new google.maps.InfoWindow();
+      
       google.maps.event.addListener(marker, 'click', function(){
         infowindow.setContent("Current location");
         infowindow.open(map, this);
@@ -389,24 +402,7 @@ function handleNoGeolocation(errorFlag) {
         console.log(resultsArray)
         return resultsArray;
       }
-      var borrowThings = findUserBorrowed();
-      console.log(borrowThings);
-      var list = document.getElementById('borrowed-items-list');
-      clearInnerHTML('borrowed-items-list');
-      for(var i=0; i<borrowThings.length; i++){
-        var item = borrowThings[i];
-        createItemMarker(item);
-        if(!(item in itemKey)) {
-          itemKey[item._id] = item;
-        }
-        console.log("item");
-        console.log(item);
-        var dataImage = item.img;
-        var src = "data:image/png;base64," + dataImage;
-        list.insertAdjacentHTML('beforeend',
-          '<div class="itemBorrowed" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-          ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
-      }
+      makeSidePanels("borrowed-items-list", "itemBorrowed", false);
       return "";
 
     }
@@ -561,52 +557,8 @@ function handleNoGeolocation(errorFlag) {
         });
         return resultsArray;
       }
+      makeSidePanels("itemList", "itemListing",true);
 
-      if(pos != null && pos != undefined){
-        
-        nearbyThings = nearbyListings(pos.lat(), pos.lng());
-        var list = document.getElementById('itemList');
-        clearInnerHTML('itemList');
-        for(var i=0; i<nearbyThings.length; i++){
-          var item = nearbyThings[i];
-          createItemMarker(item);
-          if(!(item in itemKey)){
-            itemKey[item._id] = item;
-          }
-          console.log("item");
-          console.log(item);
-          var dataImage = item.img;
-          var src = "data:image/png;base64," + dataImage;
-          list.insertAdjacentHTML('beforeend',
-            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%"><b>'+item.name+
-            '</b> <br>Loc: ' +item.address+ 
-            ' <br>Description: ' + item.description+
-            ' <br>Dur: ' +item.duration+
-            ' <br>Deposit: $' + item.deposit+ '</div>');
-          document.getElementById(item._id).addEventListener("click", function(){
-            var markerMatch;
-            allMarkersStill();
-            for(var i=0; i<curMarkers.length; i++){
-              if(curMarkers[i].data == this.id){
-                markerMatch = curMarkers[i];
-              }
-            }
-            if(markerMatch != null && markerMatch != undefined){
-              markerMatch.setAnimation(google.maps.Animation.BOUNCE);
-              map.setCenter(markerMatch.getPosition());
-              map.setZoom(17);
-              
-
-              infowindow.setContent(getWindowInfo(itemKey[this.id]));
-              infowindow.open(map, markerMatch);
-            }
-          })
-
-        }
-        
-      }else{
-        //error message saying location services disabled
-      }
     }, 100);
 
       return false;
@@ -622,28 +574,7 @@ function handleNoGeolocation(errorFlag) {
 
     "click #explore" : function(){
       Session.set("exploring", true);
-      function nearbyListings(target_lat, target_lng) {
-        var lat_error = .1;
-        var lng_error = .1;
-        results = ShareStuffDB.find({ 
-          $and: [
-              { $and: [
-                {lat: {$gt: target_lat - lat_error}}, 
-                {lat: {$lt: target_lat + lat_error}}
-                ]},
-              { $and: [
-                  {lng: {$gt: target_lng - lng_error}}, 
-                  {lng: {$lt: target_lng + lng_error}}
-                  ]}
-              ]
-          });
-        //console.log(results);
-        resultsArray = [];
-        results.collection._docs.forEach(function(elt) {
-          resultsArray.push(elt);
-        });
-        return resultsArray;
-      }
+      
 
       if(pos != null && pos != undefined){
         
@@ -761,44 +692,8 @@ function handleNoGeolocation(errorFlag) {
           curMarkers.splice(i, 1);
         }
       }
-      if(pos != null && pos != undefined){
-        
-        nearbyThings = nearbyListings(pos.lat(), pos.lng());
-        var list = document.getElementById('itemList');
-        clearInnerHTML('itemList');
-        for(var i=0; i<nearbyThings.length; i++){
-          var item = nearbyThings[i];
-          createItemMarker(item);
-          if(!(item in itemKey)){
-            itemKey[item._id] = item;
-          }
-          console.log("item");
-          console.log(item);
-          var dataImage = item.img;
-          var src = "data:image/png;base64," + dataImage;
-          list.insertAdjacentHTML('beforeend',
-            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
-          document.getElementById(item._id).addEventListener("click", function(){
-            var markerMatch;
-            allMarkersStill();
-            for(var i=0; i<curMarkers.length; i++){
-              if(curMarkers[i].data == this.id){
-                markerMatch = curMarkers[i];
-              }
-            }
-            if(markerMatch != null && markerMatch != undefined){
-              markerMatch.setAnimation(google.maps.Animation.BOUNCE);
-              infowindow.setContent(getWindowInfo(itemKey[this.id]));
-              infowindow.open(map, markerMatch);
-            }
-          })
-
-        }
-        
-      }else{
-        //error message saying location services disabled
-      }
+      makeSidePanels("itemList","itemListing",true);
+      
       Session.set("borrow-item", null);
     }
   })
