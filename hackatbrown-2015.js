@@ -137,8 +137,11 @@ if (Meteor.isClient) {
           var dataImage = item.img;
           var src = "data:image/png;base64," + dataImage;
           list.insertAdjacentHTML('beforeend',
-            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
+            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%"><b>'+item.name+
+            '</b> <br>Loc: ' +item.address+ 
+            ' <br>Description: ' + item.description+
+            ' <br>Dur: ' +item.duration+
+            ' <br>Deposit: $' + item.deposit+ '</div>');
           document.getElementById(item._id).addEventListener("click", function(){
             var markerMatch;
             allMarkersStill();
