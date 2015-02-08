@@ -39,6 +39,7 @@
 	text-align: center;
 	width: 230px;
 	height:100%;
+	margin-left:-200px;
 	position:absolute;
 	top:0px;
 	left:0px;
@@ -46,9 +47,17 @@
 	border-right: 1px #eee solid;
 	border-left: 1px #eee solid;
 	z-index: 1;
-	/*padding:1em;*/
 	box-shadow: 0 0 5px #999;
+	-webkit-transition: margin-left 1s;
+	transition: margin-left 1s;
 }
+
+#sidebar:hover {
+	margin-left: 0px;
+	-webkit-transition: margin-left 1s;
+	transition: margin-left 1s;
+}
+
 .map {
 	min-width:300px;
 	width: 100%;

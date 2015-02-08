@@ -6,7 +6,7 @@ if (Meteor.isClient) {
   var lng;
   var image;
   Session.setDefault("uploading", false);
-  Session.set('uploading-image', true);
+  Session.set('uploading-image', false);
 
   function initialize(){
     
@@ -44,14 +44,71 @@ if (Meteor.isClient) {
   function createUploadItem() {
     var description = document.getElementById("description-of-item").value;
     var name = document.getElementById("name-of-item").value;
+    var output = document.getElementById('output');
+    var imgData = getBase64Image(output);
     var item  = {
         description: description, 
         name:  name,
+        img: imgData,
         latitude: lat,
         longitude: lng
       }
     return item;
-  } 
+
+  }
+
+  // Handling Image Upload and Storage
+  function getBase64Image(img) {
+    // Create an empty canvas element
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Copy the image contents to the canvas
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    // Get the data-URL formatted image
+    var dataURL = canvas.toDataURL("image/png");
+
+    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+  }
+
+  // Detects image change and displays the given image
+  Template.uploadItem.events({
+    "change #image-of-item" : function(event) {
+
+      Session.set('uploading-image', true);
+
+      var input = event.target;
+      reader = new FileReader();
+      reader.onload = function() {
+
+        var dataURL = reader.result;
+        var output = document.getElementById('output');
+        output.src = dataURL
+
+        //image = reader.result;
+        //bannerImage = document.getElementById('bannerImg');
+
+        /*
+        var output = document.getElementById('output');
+        imgData = getBase64Image(output);
+        localStorage.setItem("imgData", imgData);
+        */
+        /*
+        var dataImage = localStorage.getItem('imgData');
+        bannerImg = document.getElementById('tableBanner');
+        bannerImg.src = "data:image/png;base64," + dataImage;
+        */
+
+        Session.set('uploading-image', false);
+
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  }) 
+
 
   Template.sidebar.helpers({
     uploading : function() {
@@ -147,6 +204,7 @@ Meteor.methods({
       name: item.name,
       lat: item.latitude,
       lng: item.longitude,
+      img: item.img,
       createdAt: new Date(),
       owner: Meteor.userId(),
       username: Meteor.user().username,
@@ -158,7 +216,27 @@ Meteor.methods({
     return ShareStuffDB.find({
       username: username
     });
-  }
+  },
+
+  nearbyListings: function(target_lat, target_lng) {
+    var lat_error = .01;
+    var lng_error = .01;
+    return ShareStuffDB.find({ 
+      $and: [
+          { $and: [
+            {lat: {$gt: target_lat - lat_error}}, 
+            {lat: {$lt: target_lat + lat_error}}
+            ]},
+          { $and: [
+              {lng: {$gt: target_lng - lng_error}}, 
+              {lng: {$lt: target_lng + lng_error}}
+              ]}
+          ]
+      });
+  },
+
+
+
 
 
 
