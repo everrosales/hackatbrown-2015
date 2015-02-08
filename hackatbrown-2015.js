@@ -24,8 +24,15 @@ var itemKey = {};
     results.collection._docs.forEach(function(elt) {
       resultsArray.push(elt);
     });
-    console.log(resultsArray)
-    return resultsArray;
+    resultsArray2 = [];
+    for (var i = 0; i < resultsArray.length; i+= 1) {
+      item = resultsArray[i];
+      console.log(item.userId);
+      if (item.borrowingUser == Meteor.userId()) {
+        resultsArray2.push(item);
+      }
+    }
+    return resultsArray2;
   }
   function clearInnerHTML(id){
     document.getElementById(id).innerHTML = "";
@@ -33,31 +40,46 @@ var itemKey = {};
   function nearbyListings(target_lat, target_lng) {
     var lat_error = .1;
     var lng_error = .1;
-    results = ShareStuffDB.find({ 
-      $and: [
-          { $and: [
+    console.log("we're in listings");
+    console.log(target_lat - lat_error);
+    results = ShareStuffDB.find({name: "Noah"}
+          /*{ $and: [
             {lat: {$gt: target_lat - lat_error}}, 
-            {lat: {$lt: target_lat + lat_error}}
-            ]},
-          { $and: [
-              {lng: {$gt: target_lng - lng_error}}, 
-              {lng: {$lt: target_lng + lng_error}}
-              ]}
-          ]
-      });
-    //console.log(results);
+            {lat: {$lt: target_lat + lat_error}},
+            {lng: {$gt: target_lng - lng_error}}, 
+            {lng: {$lt: target_lng + lng_error}},
+            {name: "Noah"}
+            ]}*/
+          );
+    console.log("did results");
+    
     resultsArray = [];
     results.collection._docs.forEach(function(elt) {
       resultsArray.push(elt);
     });
-    return resultsArray;
+    console.log(resultsArray);
+    resultsArray2 = [];
+    for (var i = 0; i < resultsArray.length; i+= 1) {
+      item = resultsArray[i];
+      console.log(item.lat);
+      if (item.lat > target_lat - lat_error && item.lat < target_lat + lat_error &&
+        item.lng > target_lng - lng_error && item.lng < target_lng + lng_error) {
+        resultsArray2.push(item);
+      }
+    }
+    console.log(resultsArray2);
+    return resultsArray2;
   }
   function makeSidePanels(parentHTML, divClass, shareDBbool){
+    console.log("going");
     if(pos != null && pos != undefined){
+      console.log("pos is good");
       var itemList;
         if(shareDBbool){
+          console.log("listings!");
           itemList = nearbyListings(pos.lat(), pos.lng());
         }else{
+          console.log("borrowed!");
           itemList = findUserBorrowed();
         }//add else statement to put item list for different database
         var list = document.getElementById(parentHTML);
@@ -119,28 +141,6 @@ var itemKey = {};
       var start = new Date().getTime();
       while (new Date().getTime() < start + delay);
     }
-  function nearbyListings(target_lat, target_lng) {
-    var lat_error = .1;
-    var lng_error = .1;
-    results = ShareStuffDB.find({ 
-      $and: [
-          { $and: [
-            {lat: {$gt: target_lat - lat_error}}, 
-            {lat: {$lt: target_lat + lat_error}}
-            ]},
-          { $and: [
-              {lng: {$gt: target_lng - lng_error}}, 
-              {lng: {$lt: target_lng + lng_error}}
-              ]}
-          ]
-      });
-    //console.log(results);
-    resultsArray = [];
-    results.collection._docs.forEach(function(elt) {
-      resultsArray.push(elt);
-    });
-    return resultsArray;
-  }
 
   function initialize(){
     infowindow = new google.maps.InfoWindow();
@@ -191,6 +191,7 @@ var itemKey = {};
                   ]}
               ]
           });
+        //console.log("results are cool");
         //console.log(results);
         resultsArray = [];
         results.collection._docs.forEach(function(elt) {
@@ -206,11 +207,15 @@ var itemKey = {};
         
       if (Meteor.userId()) {
         function findUserBorrowed() {
+          console.log("we're in borrowed");
           results = LentStuffDB.find({borrowingUser: Meteor.userId()});
+          console.log("got some results");
+          console.log(results);
           resultsArray = [];
           results.collection._docs.forEach(function(elt) {
             resultsArray.push(elt);
           });
+          console.log("and my array:");
           console.log(resultsArray)
           return resultsArray;
         }
@@ -689,7 +694,8 @@ function handleNoGeolocation(errorFlag) {
                   ]}
               ]
           });
-        //console.log(results);
+        console.log("results are chill");
+        console.log(results);
         resultsArray = [];
         results.collection._docs.forEach(function(elt) {
           resultsArray.push(elt);
@@ -758,6 +764,7 @@ function handleNoGeolocation(errorFlag) {
         }
       }
       makeSidePanels("itemList","itemListing",true);
+      makeSidePanels("borrowed-items-list","itemBorrowed", false);
       
       Session.set("borrow-item", null);
     }

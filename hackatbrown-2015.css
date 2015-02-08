@@ -99,7 +99,8 @@ h3 {
 
 #productTitle {
 	position: absolute;
-	top: -20px;
+	font-size: 40px;
+	top: -30px;
 	right: 47%;
 	color: #FFF;
 	text-shadow: 0 0 25px #333;
