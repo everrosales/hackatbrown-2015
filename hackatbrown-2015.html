@@ -20,6 +20,10 @@
     {{#if login}}
       {{> splashTemplate}}
     {{/if}}
+
+    {{#if borrowActive}}
+      {{> borrowConfirmation}}
+    {{/if}}
   </div>
 </template>
 
@@ -167,6 +171,18 @@
 
 <template name="borrowConfirmation">
   <div id="borrow-confirm-panel">
-    
+    <div id="borrow-inner-panel">
+      <div>
+        <div class="borrow-content">
+          <p> {{itemName}} | <button type="submit" id="confirm-borrow" class="push"> Confirm </button><br>
+            <hr>
+               Owner | {{ownerName}} <br>
+               Description | {{description}} </p>
+        </div>
+        <img class="borrow-image" src="{{imgData}}"/>
+      </div>
+
+    </div>
+
   </div>
 </template>

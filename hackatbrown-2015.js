@@ -1,10 +1,9 @@
 ShareStuffDB = new Mongo.Collection("stuff");
 LentStuffDB = new Mongo.Collection("lent");
 
+if (Meteor.isClient) {
 var itemKey = {};
 
-if (Meteor.isClient) {
-  // counter starts at 0
   pos = 41.8263;
   var curMarkers = [];
   var lat;
@@ -279,6 +278,10 @@ function handleNoGeolocation(errorFlag) {
   Template.bodyTemplate.helpers ({
     login: function() {
       return !Meteor.userId();
+    },
+
+    borrowActive: function() {
+      return Session.get("borrow-confirmation");
     }
   })
   Template.splashTemplate.helpers ({
@@ -433,6 +436,14 @@ function handleNoGeolocation(errorFlag) {
         });
         console.log(searchArray);
         return searchArray;
+    },
+
+    "click .itemListing" : function(event) {
+      id = event.target.id;
+      console.log(id);
+      item = itemKey[id];
+      Session.set("borrow-confirmation", true);
+      Session.set("borrow-item", item)
     }
   })
 
@@ -623,11 +634,85 @@ function handleNoGeolocation(errorFlag) {
   })
 
   Template.borrowConfirmation.helpers({
+    itemName: function() {
+      var item = Session.get("borrow-item");
+      return item.name;
+    },
 
+    description: function() {
+      var item = Session.get("borrow-item");
+      return item.description
+    },
+
+    ownerName: function() {
+      var item = Session.get("borrow-item");
+      return item.username;
+    },
+
+    imgData : function() {
+      var item = Session.get("borrow-item");
+      return "data:image/png;base64," + item.img;
+    }
   })
 
   Template.borrowConfirmation.events({
-    
+    "click #confirm-borrow" : function() {
+      Session.set("borrow-confirmation", false);
+      var item = Session.get("borrow-item");
+      LentStuffDB.insert({
+        description: item.description,
+        name: item.name,
+        lat: item.latitude,
+        lng: item.longitude,
+        address: item.address,
+        duration: item.duration,
+        deposit: item.deposit,
+        createdAt: item.createdAt,
+        owner: item.owner,
+        username: item.username
+      })
+
+      ShareStuffDB.remove(item._id);
+      if(pos != null && pos != undefined){
+        
+        nearbyThings = nearbyListings(pos.lat(), pos.lng());
+        var list = document.getElementById('itemList');
+        clearInnerHTML('itemList');
+        for(var i=0; i<nearbyThings.length; i++){
+          var item = nearbyThings[i];
+          createItemMarker(item);
+          if(!(item in itemKey)){
+            itemKey[item._id] = item;
+          }
+          console.log("item");
+          console.log(item);
+          var dataImage = item.img;
+          var src = "data:image/png;base64," + dataImage;
+          list.insertAdjacentHTML('beforeend',
+            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
+          document.getElementById(item._id).addEventListener("click", function(){
+            var markerMatch;
+            allMarkersStill();
+            for(var i=0; i<curMarkers.length; i++){
+              if(curMarkers[i].data == this.id){
+                markerMatch = curMarkers[i];
+              }
+            }
+            if(markerMatch != null && markerMatch != undefined){
+              markerMatch.setAnimation(google.maps.Animation.BOUNCE);
+              infowindow.setContent(getWindowInfo(itemKey[this.id]));
+              infowindow.open(map, markerMatch);
+            }
+          })
+
+        }
+        
+      }else{
+        //error message saying location services disabled
+      }
+      Session.set("borrow-item", null);
+    }
   })
 }
 
