@@ -2,8 +2,9 @@ ShareStuffDB = new Mongo.Collection("stuff");
 LentStuffDB = new Mongo.Collection("lent");
 
 if (Meteor.isClient) {
-
-var itemKey = {};
+  Meteor.subscribe("stuff");
+  Meteor.subscribe("lent");
+  var itemKey = {};
 
   pos = 41.8263;
   var curMarkers = [];
@@ -19,7 +20,7 @@ var itemKey = {};
   Session.setDefault('borrow-confirmation', false);
   Session.setDefault('borrow-item', null);
   function findUserBorrowed() {
-    results = LentStuffDB.find({userId: Meteor.userId()});
+    results = LentStuffDB.find({/*userId: Meteor.userId()*/});
     resultsArray = [];
     results.collection._docs.forEach(function(elt) {
       resultsArray.push(elt);
@@ -52,33 +53,29 @@ var itemKey = {};
     });
     return resultsArray;
   }
-  function makeSidePanels(parentHTML, divClass, shareDBbool){
+  function makeSidePanels(parentHTML, divClass, itemArray, shareDBbool){
     if(pos != null && pos != undefined){
-      var itemList;
+      //add else statement to put item list for different database
+      var itemList = itemArray;
+      var list = document.getElementById(parentHTML);
+      clearInnerHTML(parentHTML);
+      for(var i=0; i<itemList.length; i++){
+        var item = itemList[i];
         if(shareDBbool){
-          itemList = nearbyListings(pos.lat(), pos.lng());
-        }else{
-          itemList = findUserBorrowed();
-        }//add else statement to put item list for different database
-        var list = document.getElementById(parentHTML);
-        clearInnerHTML(parentHTML);
-        for(var i=0; i<itemList.length; i++){
-          var item = itemList[i];
-          if(shareDBbool){
-            createItemMarker(item);
-          }
-          
-          if(!(item in itemKey)){
-            itemKey[item._id] = item;
-          }
-          console.log("item");
-          console.log(item);
-          var dataImage = item.img;
-          var src = "data:image/png;base64," + dataImage;
-          list.insertAdjacentHTML('beforeend',
-            '<div class=' +  divClass+' id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
-          sidePanelToMarkerListener(item._id);
+          createItemMarker(item);
+        }
+        
+        if(!(item in itemKey)){
+          itemKey[item._id] = item;
+        }
+        console.log("item");
+        console.log(item);
+        var dataImage = item.img;
+        var src = "data:image/png;base64," + dataImage;
+        list.insertAdjacentHTML('beforeend',
+          '<div class=' +  divClass+' id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
+          ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
+        sidePanelToMarkerListener(item._id);
       }
     }else{
       //
@@ -177,7 +174,7 @@ var itemKey = {};
       console.log("set gotPos to true");
 
       console.log("inside items")
-      function nearbyListings(target_lat, target_lng) {
+      /*function nearbyListings(target_lat, target_lng) {
         var lat_error = .1;
         var lng_error = .1;
         results = ShareStuffDB.find({ 
@@ -198,12 +195,12 @@ var itemKey = {};
           resultsArray.push(elt);
         });
         return resultsArray;
-      }
-
-      makeSidePanels("itemList","itemListing", true);
+      }*/
+      itemArray = nearbyListings(pos.lat(), pos.lng());
+      makeSidePanels("itemList","itemListing", itemArray, true);
         
-        
-        makeSidePanels("borrowed-items-list","itemBorrowed",false);
+      itemArray = findUserBorrowed();
+      makeSidePanels("borrowed-items-list","itemBorrowed", itemArray, false);
         
       if (Meteor.userId()) {
         function findUserBorrowed() {
@@ -421,36 +418,17 @@ function handleNoGeolocation(errorFlag) {
       return Meteor.userId();
     },
     populatedBorrowed: function() {
-      function findUserBorrowed() {
-        results = LentStuffDB.find({borrowingUser: Meteor.userId()});
+      /* function findUserBorrowed() {
+        results = LentStuffDB.find({});
         resultsArray = [];
         results.collection._docs.forEach(function(elt) {
           resultsArray.push(elt);
         });
         console.log(resultsArray)
         return resultsArray;
-      }
-      makeSidePanels("borrowed-items-list", "itemBorrowed", false);
-      if(Meteor.userId()) { 
-        var borrowThings = findUserBorrowed();
-        console.log(borrowThings);
-        var list = document.getElementById('borrowed-items-list');
-        clearInnerHTML('borrowed-items-list');
-        for(var i=0; i<borrowThings.length; i++){
-          var item = borrowThings[i];
-          createItemMarker(item);
-          if(!(item in itemKey)) {
-            itemKey[item._id] = item;
-          }
-          console.log("item");
-          console.log(item);
-          var dataImage = item.img;
-          var src = "data:image/png;base64," + dataImage;
-          list.insertAdjacentHTML('beforeend',
-            '<div class="itemBorrowed" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
-        }
-      }
+      } */
+      itemArray = findUserBorrowed();
+      makeSidePanels("borrowed-items-list","itemBorrowed", itemArray, false);
       return "";
 
     }
@@ -605,7 +583,8 @@ function handleNoGeolocation(errorFlag) {
         });
         return resultsArray;
       }
-      makeSidePanels("itemList", "itemListing",true);
+      itemArray = nearbyListings(pos.lat(), pos.lng());
+      makeSidePanels("itemList","itemListing", itemArray, true);
 
     }, 100);
 
@@ -718,37 +697,29 @@ function handleNoGeolocation(errorFlag) {
     "click #confirm-borrow" : function() {
       Session.set("borrow-confirmation", false);
       var item = Session.get("borrow-item");
-      LentStuffDB.insert({
-        description: item.description,
-        name: item.name,
-        latitude: item.latitude,
-        longitude: item.longitude,
-        address: item.address,
-        duration: item.duration,
-        deposit: item.deposit,
-        createdAt: item.createdAt,
-        owner: item.owner,
-        img: item.img,
-        username: item.username,
-        borrowingUser: Meteor.userId()
-      })
-
-      ShareStuffDB.remove(item._id);
-      
+      Meteor.call("borrowItem", item);
       for(var i=0; i<curMarkers.length;i++){
         if(curMarkers[i].data == item._id){
           curMarkers[i].setMap(null);
           curMarkers.splice(i, 1);
         }
       }
-      makeSidePanels("itemList","itemListing",true);
-      
+      itemArray = nearbyListings(pos.lat(), pos.lng());
+      makeSidePanels("itemList","itemListing", itemArray, true);
       Session.set("borrow-item", null);
     }
   })
 }
 
 if (Meteor.isServer) {
+  Meteor.publish("stuff", function() {
+    return ShareStuffDB.find({});
+  })
+
+  Meteor.publish("lent", function() {
+    return LentStuffDB.find({borrowingUser : this.userId})
+  })
+
   Meteor.startup(function () {
 
   });
@@ -776,7 +747,25 @@ Meteor.methods({
       owner: Meteor.userId(),
       username: Meteor.user().email,
     });
+  },
 
+  borrowItem: function(item) {
+    LentStuffDB.insert({
+        description: item.description,
+        name: item.name,
+        latitude: item.latitude,
+        longitude: item.longitude,
+        address: item.address,
+        duration: item.duration,
+        deposit: item.deposit,
+        createdAt: item.createdAt,
+        owner: item.owner,
+        img: item.img,
+        username: item.username,
+        borrowingUser: Meteor.userId()
+      })
+
+      ShareStuffDB.remove(item._id);
   },
 
 
