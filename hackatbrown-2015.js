@@ -16,6 +16,17 @@ if (Meteor.isClient) {
   function clearInnerHTML(id){
     document.getElementById(id).innerHTML = "";
   }
+
+  function getWindowInfo(itemInfo){
+    var address = "";
+    if(itemInfo.address!="" && itemInfo.address!=null && itemInfo.address!=undefined){
+      address = " at " + itemInfo.address;
+    }
+    var name = itemInfo.name;
+    return name + address;
+
+
+  }
   function sleep(delay) {
       var start = new Date().getTime();
       while (new Date().getTime() < start + delay);
@@ -52,14 +63,15 @@ if (Meteor.isClient) {
       streetViewControl: false,
       panControl: true,
       panControlOptions: {
-        position: google.maps.ControlPosition.RIGHT_CENTER
+        position: google.maps.ControlPosition.BOTTOM_CENTER
       },
       mapTypeControlOptions: {
           style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
           position: google.maps.ControlPosition.BOTTOM_CENTER
       },
       zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_CENTER
+          position: google.maps.ControlPosition.BOTTOM_CENTER,
+          style: google.maps.ZoomControlStyle.SMALL
       },
     };
     
@@ -104,6 +116,7 @@ if (Meteor.isClient) {
         clearInnerHTML('itemList');
         for(var i=0; i<nearbyThings.length; i++){
           var item = nearbyThings[i];
+          createItemMarker(item);
           console.log("item");
           console.log(item);
           list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
@@ -167,13 +180,23 @@ function handleNoGeolocation(errorFlag) {
   }
 
   function createItemMarker(itemInfo){
+    console.log("creating item marker");
     var des = itemInfo.description;
     var name = itemInfo.name;
     var deposit = itemInfo.deposit;
     var img = itemInfo.img;
     var duration= itemInfo.duration;
     var address = itemInfo.address;
-    var loc = google.maps.LatLng(itemInfo.latitude, itemInfo.longitude);
+    var loc = new google.maps.LatLng(itemInfo.lat, itemInfo.lng);
+
+    var marker = new google.maps.Marker({
+      position:loc
+    });
+    marker.setMap(map);
+    google.maps.event.addListener(marker, 'click', function(){
+      infowindow.setContent(getWindowInfo(itemInfo));
+      infowindow.open(map, this);
+    })
 
   }
 
@@ -382,6 +405,7 @@ function handleNoGeolocation(errorFlag) {
         clearInnerHTML('itemList');
         for(var i=0; i<nearbyThings.length; i++){
           var item = nearbyThings[i];
+          createItemMarker(item);
           console.log("item");
           console.log(item);
           list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
