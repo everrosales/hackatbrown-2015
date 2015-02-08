@@ -152,6 +152,8 @@ if (Meteor.isClient) {
             }
             if(markerMatch != null && markerMatch != undefined){
               markerMatch.setAnimation(google.maps.Animation.BOUNCE);
+              map.setCenter(markerMatch.getPosition());
+              map.setZoom(17);
               infowindow.setContent(getWindowInfo(itemKey[this.id]));
               infowindow.open(map, markerMatch);
             }
@@ -512,6 +514,10 @@ function handleNoGeolocation(errorFlag) {
             }
             if(markerMatch != null && markerMatch != undefined){
               markerMatch.setAnimation(google.maps.Animation.BOUNCE);
+              map.setCenter(markerMatch.getPosition());
+              map.setZoom(17);
+              
+
               infowindow.setContent(getWindowInfo(itemKey[this.id]));
               infowindow.open(map, markerMatch);
             }
