@@ -1,4 +1,5 @@
 ShareStuffDB = new Mongo.Collection("stuff");
+LentStuffDB = new Mongo.Collection("lent");
 
 if (Meteor.isClient) {
   // counter starts at 0
@@ -11,7 +12,9 @@ if (Meteor.isClient) {
   var nearbyThings = [];
   Session.setDefault("uploading", false);
   Session.setDefault("gotPos", false);
-  Session.set('uploading-image', false);
+  Session.setDefault('uploading-image', false);
+  Session.setDefault('borrow-confirmation', false);
+  Session.setDefault('borrow-item', null);
 
   function clearInnerHTML(id){
     document.getElementById(id).innerHTML = "";
@@ -568,6 +571,14 @@ function handleNoGeolocation(errorFlag) {
       }
       
     }
+  })
+
+  Template.borrowConfirmation.helpers({
+
+  })
+
+  Template.borrowConfirmation.events({
+    
   })
 }
 
