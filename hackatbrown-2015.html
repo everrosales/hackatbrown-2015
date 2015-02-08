@@ -46,17 +46,23 @@
 
 <template name="uploadItem">
   <div class="upload" action="#">
+    <input id="name-of-item" type="text" placeholder="Name"/>
+    <br>
     <input id="location-of-item" type="text" placeholder="Location"/>
     <br>
     <input id="description-of-item" type="text" placeholder="Description"/>
     <br>
-    Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*" onchange="{{readFile}}"/>
+    Image: <input id="image-of-item" type="file" name="img-pic" accept="image/*" onchange="readFile(event)"/>
     <br>
     <img id="output">
     <br>
     <input id="deposit-for-item" type="text" placeholder="Deposit"/>
     <br>
-    <button type="submit" id="upload-item"> Upload Listing </button>
+    {{#if uploadingImage}}
+      <p> Uploading Image </p>
+    {{else}}
+      <button type="submit" id="upload-item"> Upload Listing </button>
+    {{/if}}
   </div>
 </template>
 
