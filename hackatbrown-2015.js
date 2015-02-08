@@ -7,15 +7,44 @@ if (Meteor.isClient) {
   var lng;
   var image;
   var pos;
+  var itemAddress;
+  var nearbyThings = [];
   Session.setDefault("uploading", false);
+  Session.setDefault("gotPos", false);
   Session.set('uploading-image', false);
 
+  function clearInnerHTML(id){
+    document.getElementById(id).innerHTML = "";
+  }
   function sleep(delay) {
       var start = new Date().getTime();
       while (new Date().getTime() < start + delay);
     }
+  function nearbyListings(target_lat, target_lng) {
+    var lat_error = .1;
+    var lng_error = .1;
+    results = ShareStuffDB.find({ 
+      $and: [
+          { $and: [
+            {lat: {$gt: target_lat - lat_error}}, 
+            {lat: {$lt: target_lat + lat_error}}
+            ]},
+          { $and: [
+              {lng: {$gt: target_lng - lng_error}}, 
+              {lng: {$lt: target_lng + lng_error}}
+              ]}
+          ]
+      });
+    //console.log(results);
+    resultsArray = [];
+    results.collection._docs.forEach(function(elt) {
+      resultsArray.push(elt);
+    });
+    return resultsArray;
+  }
 
   function initialize(){
+    console.log("inside initialize");
     
     var mapOptions = {
       center: new google.maps.LatLng(41.82681380, -71.40298949),
@@ -40,6 +69,53 @@ if (Meteor.isClient) {
     navigator.geolocation.getCurrentPosition(function(position) {
       pos = new google.maps.LatLng(position.coords.latitude,
                                        position.coords.longitude);
+      Session.set("gotPos", true);
+      Meteor.flush();
+      console.log("set gotPos to true");
+
+      console.log("inside items")
+      function nearbyListings(target_lat, target_lng) {
+        var lat_error = .1;
+        var lng_error = .1;
+        results = ShareStuffDB.find({ 
+          $and: [
+              { $and: [
+                {lat: {$gt: target_lat - lat_error}}, 
+                {lat: {$lt: target_lat + lat_error}}
+                ]},
+              { $and: [
+                  {lng: {$gt: target_lng - lng_error}}, 
+                  {lng: {$lt: target_lng + lng_error}}
+                  ]}
+              ]
+          });
+        //console.log(results);
+        resultsArray = [];
+        results.collection._docs.forEach(function(elt) {
+          resultsArray.push(elt);
+        });
+        return resultsArray;
+      }
+
+      if(pos != null && pos != undefined){
+        
+        nearbyThings = nearbyListings(pos.lat(), pos.lng());
+        var list = document.getElementById('itemList');
+        clearInnerHTML('itemList');
+        for(var i=0; i<nearbyThings.length; i++){
+          var item = nearbyThings[i];
+          console.log("item");
+          console.log(item);
+          list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
+
+        }
+        
+      }else{
+        //error message saying location services disabled
+      }
+      
+    
 
       var marker = new google.maps.Marker({
         map: map,
@@ -90,6 +166,17 @@ function handleNoGeolocation(errorFlag) {
     marker.setMap(map);
   }
 
+  function createItemMarker(itemInfo){
+    var des = itemInfo.description;
+    var name = itemInfo.name;
+    var deposit = itemInfo.deposit;
+    var img = itemInfo.img;
+    var duration= itemInfo.duration;
+    var address = itemInfo.address;
+    var loc = google.maps.LatLng(itemInfo.latitude, itemInfo.longitude);
+
+  }
+
 
   function createUploadItem() {
     console.log("inside createUploadItem");
@@ -105,9 +192,11 @@ function handleNoGeolocation(errorFlag) {
         img: imgData,
         deposit: deposit,
         duration:duration,
+        address:itemAddress,
         latitude: lat,
         longitude: lng
       }
+    
     return item;
 
   }
@@ -236,6 +325,8 @@ function handleNoGeolocation(errorFlag) {
         }
         lat = place.geometry.location.lat();
         lng = place.geometry.location.lng();
+        itemAddress = newPlace.value;
+        console.log("itemAddress: " + itemAddress);
         createMarkerPlace(place.geometry.location);
         if(place.geometry.viewport){
           map.fitBounds(place.geometry.viewport);
@@ -268,6 +359,26 @@ function handleNoGeolocation(errorFlag) {
     }
   })
 
+  Template.searchSidebar.events({
+    "click #do-the-thing" : function() {
+        console.log("doing the thing");
+        function searchListings(searchString) {
+          return ShareStuffDB.find({description: {$regex: searchString }});
+        }
+        var searchTerm = document.getElementById("name-to-search").value;
+        searchTermReg = new RegExp(searchTerm, 'i');
+        console.log("search term");
+        console.log(searchTermReg);
+        searchResults = searchListings(searchTermReg);
+        var searchArray = [];
+        searchResults.collection._docs.forEach(function(elt) {
+          searchArray.push(elt);
+        });
+        console.log(searchArray);
+        return searchArray;
+    }
+  })
+
   Template.uploadItem.helpers({
     uploadingImage: function() {
       return Session.get('uploading-image');
@@ -279,27 +390,14 @@ function handleNoGeolocation(errorFlag) {
     "click #upload-item" : function() {
       Session.set('uploading', false);
       var newListing = createUploadItem();
+      console.log("newListing");
+      console.log(newListing);
+      
       console.log("calling uploadItem");
       Meteor.call("uploadItem", newListing);
       Meteor.flush();
-
-      return false;
-    },
-    "click #cancel-item" : function(){
-      Session.set("uploading", false);
-      document.getElementById("upload-new-item").style.display='inline';
-    }
-  })
-
-  Template.nearby.events({
-
-
-    "click #explore" : function(){
-      function nearbyListings(target_lat, target_lng) {
-        console.log("target_lat");
-        console.log(target_lat);
-        console.log("target_lng");
-        console.log(target_lng);
+      setTimeout(function(){
+        function nearbyListings(target_lat, target_lng) {
         var lat_error = .1;
         var lng_error = .1;
         results = ShareStuffDB.find({ 
@@ -314,7 +412,7 @@ function handleNoGeolocation(errorFlag) {
                   ]}
               ]
           });
-        console.log(results);
+        //console.log(results);
         resultsArray = [];
         results.collection._docs.forEach(function(elt) {
           resultsArray.push(elt);
@@ -323,10 +421,121 @@ function handleNoGeolocation(errorFlag) {
       }
 
       if(pos != null && pos != undefined){
-        console.log("pos_lat");
-        console.log(pos.lat());
-        var nearbyThings = nearbyListings( pos.lat(), pos.lng());
+        
+        nearbyThings = nearbyListings(pos.lat(), pos.lng());
+        var list = document.getElementById('itemList');
+        clearInnerHTML('itemList');
+        for(var i=0; i<nearbyThings.length; i++){
+          var item = nearbyThings[i];
+          console.log("item");
+          console.log(item);
+          list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
+
+        }
+        
+      }else{
+        //error message saying location services disabled
+      }
+    }, 100);
+
+      return false;
+    },
+    "click #cancel-item" : function(){
+      Session.set("uploading", false);
+      document.getElementById("upload-new-item").style.display='inline';
+    }
+  })
+
+  Template.nearby.events({
+
+
+    "click #explore" : function(){
+      Session.set("exploring", true);
+      function nearbyListings(target_lat, target_lng) {
+        var lat_error = .1;
+        var lng_error = .1;
+        results = ShareStuffDB.find({ 
+          $and: [
+              { $and: [
+                {lat: {$gt: target_lat - lat_error}}, 
+                {lat: {$lt: target_lat + lat_error}}
+                ]},
+              { $and: [
+                  {lng: {$gt: target_lng - lng_error}}, 
+                  {lng: {$lt: target_lng + lng_error}}
+                  ]}
+              ]
+          });
+        //console.log(results);
+        resultsArray = [];
+        results.collection._docs.forEach(function(elt) {
+          resultsArray.push(elt);
+        });
+        return resultsArray;
+      }
+
+      if(pos != null && pos != undefined){
+        
+        nearbyThings = nearbyListings( pos.lat(), pos.lng());
         console.log(nearbyThings);
+        var list = document.getElementById('nearbyThings');
+        /*for(var i=0; i<nearbyThings.length; i++){
+          var item = nearbyThings[i];
+          list.insertAdjacentHTML('beforeend','<div>name: '+item.name+ ' duration: ' +item.duration+
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
+
+        }*/
+        Session.set("nearbyThings", nearbyThings);
+        console.log("new nearbythings");
+        console.log(Session.get("nearbyThings"));
+        Meteor.flush();
+
+
+      }else{
+        //error message saying location services disabled
+      }
+      
+    },
+    
+  })
+  Template.nearby.helpers({
+    items: 
+      Session.get("nearbyThings")
+
+    
+  })
+
+  Template.searchSidebar.helpers({
+    items: function(){
+      console.log("inside items")
+      function nearbyListings(target_lat, target_lng) {
+        var lat_error = .1;
+        var lng_error = .1;
+        results = ShareStuffDB.find({ 
+          $and: [
+              { $and: [
+                {lat: {$gt: target_lat - lat_error}}, 
+                {lat: {$lt: target_lat + lat_error}}
+                ]},
+              { $and: [
+                  {lng: {$gt: target_lng - lng_error}}, 
+                  {lng: {$lt: target_lng + lng_error}}
+                  ]}
+              ]
+          });
+        //console.log(results);
+        resultsArray = [];
+        results.collection._docs.forEach(function(elt) {
+          resultsArray.push(elt);
+        });
+        return resultsArray;
+      }
+
+      if(pos != null && pos != undefined){
+        
+        nearbyThings = nearbyListings(pos.lat(), pos.lng());
+        return nearbyThings;
       }else{
         //error message saying location services disabled
       }
@@ -355,6 +564,7 @@ Meteor.methods({
       name: item.name,
       lat: item.latitude,
       lng: item.longitude,
+      address:item.address,
       img: item.img,
       duration:item.duration,
       deposit: item.deposit,
@@ -371,8 +581,6 @@ Meteor.methods({
       username: username
     });
   },
-
-  
 
 
 
