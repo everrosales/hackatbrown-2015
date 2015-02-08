@@ -1,8 +1,11 @@
 ShareStuffDB = new Mongo.Collection("stuff");
 
+var itemKey = {};
+
 if (Meteor.isClient) {
   // counter starts at 0
   pos = 41.8263;
+  var curMarkers = [];
   var lat;
   var lng;
   var image;
@@ -26,6 +29,11 @@ if (Meteor.isClient) {
     return name + address;
 
 
+  }
+  function allMarkersStill(){
+    for(var i=0; i<curMarkers.length; i++){
+      curMarkers[i].setAnimation(null);
+    }
   }
   function sleep(delay) {
       var start = new Date().getTime();
@@ -55,6 +63,7 @@ if (Meteor.isClient) {
   }
 
   function initialize(){
+    curMarkers = [];
     console.log("inside initialize");
     
     var mapOptions = {
@@ -117,13 +126,30 @@ if (Meteor.isClient) {
         for(var i=0; i<nearbyThings.length; i++){
           var item = nearbyThings[i];
           createItemMarker(item);
+          if(!(item in itemKey)){
+            itemKey[item._id] = item;
+          }
           console.log("item");
           console.log(item);
           var dataImage = item.img;
           var src = "data:image/png;base64," + dataImage;
           list.insertAdjacentHTML('beforeend',
-            '<div class="itemListing" style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
             ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
+          document.getElementById(item._id).addEventListener("click", function(){
+            var markerMatch;
+            allMarkersStill();
+            for(var i=0; i<curMarkers.length; i++){
+              if(curMarkers[i].data == this.id){
+                markerMatch = curMarkers[i];
+              }
+            }
+            if(markerMatch != null && markerMatch != undefined){
+              markerMatch.setAnimation(google.maps.Animation.BOUNCE);
+              infowindow.setContent(getWindowInfo(itemKey[this.id]));
+              infowindow.open(map, markerMatch);
+            }
+          })
 
         }
         
@@ -193,9 +219,11 @@ function handleNoGeolocation(errorFlag) {
     var loc = new google.maps.LatLng(itemInfo.lat, itemInfo.lng);
 
     var marker = new google.maps.Marker({
-      position:loc
+      position:loc,
+      data:itemInfo._id
     });
     marker.setMap(map);
+    curMarkers.push(marker);
     google.maps.event.addListener(marker, 'click', function(){
       infowindow.setContent(getWindowInfo(itemInfo));
       infowindow.open(map, this);
@@ -423,6 +451,7 @@ function handleNoGeolocation(errorFlag) {
       Meteor.call("uploadItem", newListing);
       Meteor.flush();
       setTimeout(function(){
+        curMarkers = [];
         function nearbyListings(target_lat, target_lng) {
         var lat_error = .1;
         var lng_error = .1;
@@ -454,13 +483,30 @@ function handleNoGeolocation(errorFlag) {
         for(var i=0; i<nearbyThings.length; i++){
           var item = nearbyThings[i];
           createItemMarker(item);
+          if(!(item in itemKey)){
+            itemKey[item._id] = item;
+          }
           console.log("item");
           console.log(item);
           var dataImage = item.img;
           var src = "data:image/png;base64," + dataImage;
           list.insertAdjacentHTML('beforeend',
-            '<div class="itemListing" style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            '<div class="itemListing" id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
             ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
+          document.getElementById(item._id).addEventListener("click", function(){
+            var markerMatch;
+            allMarkersStill();
+            for(var i=0; i<curMarkers.length; i++){
+              if(curMarkers[i].data == this.id){
+                markerMatch = curMarkers[i];
+              }
+            }
+            if(markerMatch != null && markerMatch != undefined){
+              markerMatch.setAnimation(google.maps.Animation.BOUNCE);
+              infowindow.setContent(getWindowInfo(itemKey[this.id]));
+              infowindow.open(map, markerMatch);
+            }
+          })
 
         }
         
