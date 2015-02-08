@@ -21,6 +21,29 @@ if (Meteor.isClient) {
   Session.setDefault('borrow-item', null);
   Session.setDefault("returnActive", false);
   Session.setDefault("returnItem", null);
+  function getAllInfo(itemInfo){
+    var address = "N/A";
+    if(itemInfo.address !="" && itemInfo.address!=null){
+      address=itemInfo.address;
+    }
+    var duration = "N/A";
+    if(itemInfo.duration !="" && itemInfo.duration!=null){
+      duration=itemInfo.duration+" days";
+    }
+    var deposit = "N/A";
+    if(itemInfo.deposit !="" && itemInfo.deposit!=null){
+      deposit="$"+ itemInfo.deposit;
+    }
+    var username = "N/A";
+    if(itemInfo.username !="" && itemInfo.username!=null){
+      username=itemInfo.username;
+    }
+    var description = "N/A";
+    if(itemInfo.description!="" && itemInfo.description!=null){
+      description=itemInfo.description;
+    }
+    return {'address':address,'duration':duration,'deposit':deposit,'username':username,'description': description}
+  }
   function findUserBorrowed() {
     results = LentStuffDB.find({/*userId: Meteor.userId()*/});
     resultsArray = [];
@@ -124,11 +147,12 @@ if (Meteor.isClient) {
           }
           console.log("item");
           console.log(item);
+          var allInfo = getAllInfo(item);
           var dataImage = item.img;
           var src = "data:image/png;base64," + dataImage;
           list.insertAdjacentHTML('beforeend',
-            '<div class=' +  divClass+' id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
+            '<div class=' +  divClass+' id='+item._id+' style="background:url(\''+ src + '\') no-repeat;background-size:100%"><strong>'+item.name+'</strong><br>Address: ' +allInfo['address']+'<br>Duration: ' +allInfo['duration']+
+            '<br>Deposit: ' + allInfo['deposit'] + '<br>Description: ' + allInfo['description']+'<br>Owner: '+ allInfo['username']+'</div>');
           sidePanelToMarkerListener(item._id);
       }
     }else{
