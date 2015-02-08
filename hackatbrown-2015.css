@@ -259,9 +259,9 @@ h3 {
 	float: right;
 }
 
-#confirm-borrow {
+#confirm-borrow, #cancel-borrow {
 	float:center;
-	font-size: 30px;
+	font-size: 20px;
 }
 
 .shortHr {

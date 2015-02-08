@@ -71,7 +71,7 @@ if (Meteor.isClient) {
       var item = resultsArray[i];
       console.log("item");
       console.log(item);
-      if(item.owner === Meteor.userId()){
+      if(item.username == Meteor.user().emails[0].address){
         resultsArray2.push(item);
       }
     }
@@ -793,6 +793,11 @@ function handleNoGeolocation(errorFlag) {
       makeSidePanels("borrowed-items-list","itemBorrowed", false, false);
       makeSidePanels("shared-items-list","itemShared", false, true);
 
+      Session.set("borrow-item", null);
+    },
+
+    "click #cancel-borrow":function() {
+      Session.set("borrow-confirmation", false);
       Session.set("borrow-item", null);
     }
   })
