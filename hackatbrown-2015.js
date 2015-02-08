@@ -29,12 +29,31 @@ if (Meteor.isClient) {
     });
     resultsArray2 = [];
     for (var i = 0; i < resultsArray.length; i+= 1) {
-      item = resultsArray[i];
-      console.log(item.userId);
+      var item = resultsArray[i];
+
       if (item.borrowingUser == Meteor.userId()) {
         resultsArray2.push(item);
       }
     }
+    return resultsArray2;
+  }
+  function findUserShared(){
+    results = LentStuffDB.find({owner: Meteor.userId()});
+    resultsArray = [];
+    results.collection._docs.forEach(function(elt){
+      resultsArray.push(elt);
+    });
+    resultsArray2=[];
+    for(var i=0; i<resultsArray.length; i++){
+      var item = resultsArray[i];
+      console.log("item");
+      console.log(item);
+      if(item.owner === Meteor.userId()){
+        resultsArray2.push(item);
+      }
+    }
+    console.log("sharedList: ");
+    console.log(resultsArray2);
     return resultsArray2;
   }
   function clearInnerHTML(id){
@@ -45,7 +64,7 @@ if (Meteor.isClient) {
     var lng_error = .1;
     console.log("we're in listings");
     console.log(target_lat - lat_error);
-    results = ShareStuffDB.find({name: "Noah"}
+    results = ShareStuffDB.find(/*{name: "Noah"}*/
           /*{ $and: [
             {lat: {$gt: target_lat - lat_error}}, 
             {lat: {$lt: target_lat + lat_error}},
@@ -74,7 +93,8 @@ if (Meteor.isClient) {
     return resultsArray2;
   }
 
-  function makeSidePanels(parentHTML, divClass, shareDBbool){
+  function makeSidePanels(parentHTML, divClass, shareDBbool, sharedBool){
+    console.log("id: " + Meteor.userId());
     console.log("going");
     if(pos != null && pos != undefined){
       console.log("pos is good");
@@ -83,8 +103,13 @@ if (Meteor.isClient) {
           console.log("listings!");
           itemList = nearbyListings(pos.lat(), pos.lng());
         }else{
-          console.log("borrowed!");
-          itemList = findUserBorrowed();
+          if(sharedBool){
+            console.log("shared!");
+            itemList=findUserShared();
+          }else{
+            console.log("borrowed!");
+            itemList = findUserBorrowed();
+          }
         }//add else statement to put item list for different database
         var list = document.getElementById(parentHTML);
         clearInnerHTML(parentHTML);
@@ -204,12 +229,14 @@ if (Meteor.isClient) {
         return resultsArray;
       }*/
       itemArray = nearbyListings(pos.lat(), pos.lng());
-      makeSidePanels("itemList","itemListing", true);
+      makeSidePanels("itemList","itemListing", true, false);
         
       itemArray = findUserBorrowed();
-      makeSidePanels("borrowed-items-list","itemBorrowed", false);
+      makeSidePanels("borrowed-items-list","itemBorrowed", false, false);
+      makeSidePanels("shared-items-list","itemShared", false, true);
         
       if (Meteor.userId()) {
+        makeSidePanels("shared-items-list","itemShared", false, true);
         function findUserBorrowed() {
           console.log("we're in borrowed");
           results = LentStuffDB.find({borrowingUser: Meteor.userId()});
@@ -434,7 +461,11 @@ function handleNoGeolocation(errorFlag) {
     },
     populatedBorrowed: function()  {
       itemArray = findUserBorrowed();
-      makeSidePanels("borrowed-items-list","itemBorrowed", false);
+      makeSidePanels("borrowed-items-list","itemBorrowed", false, false);
+      return "";
+    },
+    populatedShared: function(){
+      makeSidePanels("shared-items-list","itemShared", false, true);
       return "";
     }
   })
@@ -530,6 +561,7 @@ function handleNoGeolocation(errorFlag) {
     "click #shared-items-button": function() {
       document.getElementById("borrowed-tab").style.display = "none";
       document.getElementById("shared-tab").style.display = "block";
+      makeSidePanels("shared-items-list", "itemShared", false, true);
     },
 
     "click .itemBorrowed": function(event) {
@@ -611,7 +643,7 @@ function handleNoGeolocation(errorFlag) {
         return resultsArray;
       }
       itemArray = nearbyListings(pos.lat(), pos.lng());
-      makeSidePanels("itemList","itemListing",  true);
+      makeSidePanels("itemList","itemListing",  true, false);
 
     }, 100);
 
@@ -733,8 +765,9 @@ function handleNoGeolocation(errorFlag) {
         }
       }
 
-      makeSidePanels("itemList","itemListing",true);
-      makeSidePanels("borrowed-items-list","itemBorrowed", false);
+      makeSidePanels("itemList","itemListing",true, false);
+      makeSidePanels("borrowed-items-list","itemBorrowed", false, false);
+      makeSidePanels("shared-items-list","itemShared", false, true);
 
       Session.set("borrow-item", null);
     }
@@ -755,14 +788,19 @@ function handleNoGeolocation(errorFlag) {
   Template.returnItem.events({
     "click #success": function(event) {
       item = Session.get("returnItem");
-      Meteor.call("returnItem", item.id);
-      Session.set("returnItem", null);
+      console.log("returned item");
+      console.log(item);
+      Meteor.call("returnItem", item._id);
+      makeSidePanels("borrowed-items-list","itemBorrowed", false, false);
       Session.set("returnActive", false);
+      Session.set("returnItem", null);
+
     },
 
     "click #cancel" : function(event) {
-      Session.set("returnItem", null);
       Session.set("returnActive", false);
+      Session.set("returnItem", null);
+
     }
   })
 
@@ -826,6 +864,7 @@ Meteor.methods({
   },
 
   returnItem: function(id) {
+    console.log(id);
     LentStuffDB.remove(id);
   },
 
