@@ -717,14 +717,10 @@ function handleNoGeolocation(errorFlag) {
           curMarkers.splice(i, 1);
         }
       }
-<<<<<<< HEAD
+
       makeSidePanels("itemList","itemListing",true);
       makeSidePanels("borrowed-items-list","itemBorrowed", false);
-      
-=======
-      itemArray = nearbyListings(pos.lat(), pos.lng());
-      makeSidePanels("itemList","itemListing", itemArray, true);
->>>>>>> d1b374cf33a1b994256ba6f5d758bbbab8e99d49
+
       Session.set("borrow-item", null);
     }
   })
