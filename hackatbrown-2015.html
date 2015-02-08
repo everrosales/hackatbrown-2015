@@ -20,6 +20,10 @@
     {{#if login}}
       {{> splashTemplate}}
     {{/if}}
+
+    {{#if borrowActive}}
+      {{> borrowConfirmation}}
+    {{/if}}
   </div>
 </template>
 
@@ -36,16 +40,18 @@
   <div id="sidebar" class="{{#if login}}blurred{{/if}}">
     <img id="sidebarToggle" src="/circle-button.png">
     
-    <br><br>
+    <br>
+    <h2 style="margin:.5em;">Share</h2>
     <div id="accountTab">
-      <br>
       {{#if login}}
       {{else}}
         {{> loginButtons}}
       {{/if}}
+
       {{#if username}}
       {{else}}
       	{{> makeUsername}}
+      {{/if}}
       <br><br><br><br><br>
       <h2 style="margin:.5em;">Share</h2>
       
@@ -53,6 +59,7 @@
     <br>
     
 
+      
     
     {{#if uploading}}
       {{> uploadItem}}
@@ -61,6 +68,12 @@
 	    <br>
 
     {{/if}}
+    {{#if login}}
+      {{populatedBorrowed}}
+    {{/if}}
+    <hr class="shortHr">
+    <h2 style="margin:.5em;">My Borrowed</h2>
+    <div id="borrowed-items-list"></div>
   </div>
 </template>
 <template name="makeUsername">
@@ -173,6 +186,18 @@
 
 <template name="borrowConfirmation">
   <div id="borrow-confirm-panel">
-    
+    <div id="borrow-inner-panel">
+      <div>
+        <div class="borrow-content">
+          <p> {{itemName}} | <button type="submit" id="confirm-borrow" class="push"> Confirm </button><br>
+            <hr>
+               Owner | {{ownerName}} <br>
+               Description | {{description}} </p>
+        </div>
+        <img class="borrow-image" src="{{imgData}}"/>
+      </div>
+
+    </div>
+
   </div>
 </template>
