@@ -219,6 +219,26 @@ function handleNoGeolocation(errorFlag) {
     }
   })
 
+  Template.searchSidebar.events({
+    "click #do-the-thing" : function() {
+        console.log("doing the thing");
+        function searchListings(searchString) {
+          return ShareStuffDB.find({description: {$regex: searchString }});
+        }
+        var searchTerm = document.getElementById("name-to-search").value;
+        searchTermReg = new RegExp(searchTerm, 'i');
+        console.log("search term");
+        console.log(searchTermReg);
+        searchResults = searchListings(searchTermReg);
+        var searchArray = [];
+        searchResults.collection._docs.forEach(function(elt) {
+          searchArray.push(elt);
+        });
+        console.log(searchArray);
+        return searchArray;
+    }
+  })
+
   Template.uploadItem.helpers({
     uploadingImage: function() {
       return Session.get('uploading-image');
@@ -322,8 +342,6 @@ Meteor.methods({
       username: username
     });
   },
-
-  
 
 
 
