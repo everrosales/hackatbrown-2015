@@ -536,7 +536,7 @@ function handleNoGeolocation(errorFlag) {
       for (var i = 0; i < resultsArray.length; i+= 1) {
         item = resultsArray[i];
         console.log(item.lat);
-        if ((item.name.indexOf(searchString)> -1) || (item.description.indexOf(searchString) > -1)) {
+        if ((item.name.toLowerCase().indexOf(searchString.toLowerCase())> -1) || (item.description.toLowerCase().indexOf(searchString.toLowerCase()) > -1)) {
           resultsArray2.push(item);
         }
       }
