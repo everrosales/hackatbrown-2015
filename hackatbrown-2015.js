@@ -202,10 +202,10 @@ if (Meteor.isClient) {
         return resultsArray;
       }*/
       itemArray = nearbyListings(pos.lat(), pos.lng());
-      makeSidePanels("itemList","itemListing", itemArray, true);
+      makeSidePanels("itemList","itemListing", true);
         
       itemArray = findUserBorrowed();
-      makeSidePanels("borrowed-items-list","itemBorrowed", itemArray, false);
+      makeSidePanels("borrowed-items-list","itemBorrowed", false);
         
       if (Meteor.userId()) {
         function findUserBorrowed() {
@@ -428,7 +428,7 @@ function handleNoGeolocation(errorFlag) {
     },
     populatedBorrowed: function()  {
       itemArray = findUserBorrowed();
-      makeSidePanels("borrowed-items-list","itemBorrowed", itemArray, false);
+      makeSidePanels("borrowed-items-list","itemBorrowed", false);
       return "";
     }
   })
@@ -596,7 +596,7 @@ function handleNoGeolocation(errorFlag) {
         return resultsArray;
       }
       itemArray = nearbyListings(pos.lat(), pos.lng());
-      makeSidePanels("itemList","itemListing", itemArray, true);
+      makeSidePanels("itemList","itemListing",  true);
 
     }, 100);
 
