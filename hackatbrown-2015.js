@@ -106,7 +106,6 @@ if (Meteor.isClient) {
     var name = itemInfo.name;
     return name + address;
 
-
   }
   function allMarkersStill(){
     for(var i=0; i<curMarkers.length; i++){
@@ -417,20 +416,10 @@ function handleNoGeolocation(errorFlag) {
     userId: function(){
       return Meteor.userId();
     },
-    populatedBorrowed: function() {
-      /* function findUserBorrowed() {
-        results = LentStuffDB.find({});
-        resultsArray = [];
-        results.collection._docs.forEach(function(elt) {
-          resultsArray.push(elt);
-        });
-        console.log(resultsArray)
-        return resultsArray;
-      } */
+    populatedBorrowed: function()  {
       itemArray = findUserBorrowed();
       makeSidePanels("borrowed-items-list","itemBorrowed", itemArray, false);
       return "";
-
     }
   })
 
@@ -454,13 +443,16 @@ function handleNoGeolocation(errorFlag) {
   Template.searchSidebar.events({
     "click #searchSidebarToggle" : function() {
       console.log("click");
+
       var bar = document.getElementById('searchSidebar');
       var barMargin = bar.style.marginRight.replace("px","");
 
       if (barMargin == "-200" || barMargin == "") {
         bar.style.marginRight = "0px";
+        document.getElementById('rightIntro').style.right = "-400px";
       } else {
         bar.style.marginRight = "-200px";
+        document.getElementById('rightIntro').style.right = "40px";
       }
     }
   })
@@ -508,9 +500,19 @@ function handleNoGeolocation(errorFlag) {
       var barMargin = bar.style.marginLeft.replace("px","");
       if (barMargin == "-200" || barMargin == "") {
         bar.style.marginLeft = "0px";
+        document.getElementById('leftIntro').style.left = "-400px";
       } else {
         bar.style.marginLeft = "-200px";
+        document.getElementById('leftIntro').style.left = "40px";
       }
+    },
+    "click #borrowed-items-button": function() {
+      document.getElementById("borrowed-tab").style.display = "block";
+      document.getElementById("shared-tab").style.display = "none";
+    },
+    "click #shared-items-button": function() {
+      document.getElementById("borrowed-tab").style.display = "none";
+      document.getElementById("shared-tab").style.display = "block";
     }
   })
 
