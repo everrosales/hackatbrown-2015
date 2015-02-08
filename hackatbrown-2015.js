@@ -370,6 +370,15 @@ function handleNoGeolocation(errorFlag) {
     login: function() {
       return !Meteor.userId();
     },
+    user: function(){
+      return Meteor.user();
+    },
+    username: function(){
+      return Meteor.user().username;
+    },
+    userId: function(){
+      return Meteor.userId();
+    },
     populatedBorrowed: function() {
       function findUserBorrowed() {
         results = LentStuffDB.find({borrowingUser: Meteor.userId()});
@@ -748,6 +757,13 @@ function handleNoGeolocation(errorFlag) {
       })
 
       ShareStuffDB.remove(item._id);
+      
+      for(var i=0; i<curMarkers.length;i++){
+        if(curMarkers[i].data == item._id){
+          curMarkers[i].setMap(null);
+          curMarkers.splice(i, 1);
+        }
+      }
       if(pos != null && pos != undefined){
         
         nearbyThings = nearbyListings(pos.lat(), pos.lng());

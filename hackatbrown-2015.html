@@ -15,10 +15,12 @@
   <div id="bodyContainer">
     {{> sidebar}}
     {{> searchSidebar}}
-    <div id="toggle"></div>
+    <!--<div id="toggle"></div>-->
     {{> map}}
     {{#if login}}
       {{> splashTemplate}}
+    {{else}}
+      <h3 id="productTitle">UNeed</h3>
     {{/if}}
 
     {{#if borrowActive}}
@@ -47,8 +49,18 @@
       {{else}}
         {{> loginButtons}}
       {{/if}}
+
+      {{#if username}}
+      {{else}}
+      	{{> makeUsername}}
+      {{/if}}
+      <br><br><br><br><br>
+      <h2 style="margin:.5em;">Share</h2>
       
     </div>    
+    <br>
+
+      
     
     {{#if uploading}}
       {{> uploadItem}}
@@ -64,6 +76,9 @@
     <h2 style="margin:.5em;">My Borrowed</h2>
     <div id="borrowed-items-list"></div>
   </div>
+</template>
+<template name="makeUsername">
+	<input type="text" placeholder="Please enter a username">
 </template>
 
 <template name="searchSidebar">
