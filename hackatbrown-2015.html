@@ -17,20 +17,32 @@
     {{> searchSidebar}}
     <div id="toggle"></div>
     {{> map}}
+    {{#if login}}
+      {{> splashTemplate}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="splashTemplate">
+  <div id="splashContainer">
+    <h1>UNeed</h1>
+    <h3>the UNique community lending platform</h3>
+    {{> loginButtons}}
+    {{startClick}}
   </div>
 </template>
 
 <template name="sidebar">
-  <div id="sidebar">
-    
+  <div id="sidebar" class="{{#if login}}blurred{{/if}}">
+    <img id="sidebarToggle" src="/circle-button.png">
     
     <br><br>
-    
-    
-
     <div id="accountTab">
       <br>
-      {{> loginButtons}}
+      {{#if login}}
+      {{else}}
+        {{> loginButtons}}
+      {{/if}}
       <br><br><br><br><br>
       <h2 style="margin:.5em;">Share</h2>
       
@@ -50,7 +62,8 @@
 </template>
 
 <template name="searchSidebar">
-  <div id="searchSidebar">
+  <div id="searchSidebar" class="{{#if login}}blurred{{/if}}">
+    <img id="searchSidebarToggle" src="/circle-button.png">
     <div id="searchTab">
       <br>
       <h2 style="margin:.5em;">Search</h2>
@@ -72,6 +85,7 @@
       	{{/each}}
       {{/if}}-->
       <input id="name-to-search" type="text" placeholder="Search Me!"/>
+      <button type="submit" id="do-the-thing" class="push">Search</button>
       <br>
       <!--{{> loginButtons}}-->
     </div>    
@@ -86,7 +100,7 @@
 </template>
 
 <template name="map">
-	<div class="map" style="">
+	<div class="map{{#if login}} blurred{{/if}}" style="">
       <div id="map-canvas"></div>
       {{init}}
     </div>

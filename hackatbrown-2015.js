@@ -201,7 +201,6 @@ function handleNoGeolocation(errorFlag) {
   }
 
 
-
   function createUploadItem() {
     console.log("inside createUploadItem");
     var description = document.getElementById("description-of-item").value;
@@ -243,6 +242,20 @@ function handleNoGeolocation(errorFlag) {
     return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
   }
 
+  Template.bodyTemplate.helpers ({
+    login: function() {
+      return !Meteor.userId();
+    }
+  })
+  Template.splashTemplate.helpers ({
+    startClick: function() {  
+      setTimeout(function(){
+        document.getElementById("login-buttons").click();
+      }, 150);
+      return "";
+    }
+  })
+
   // Detects image change and displays the given image
   Template.uploadItem.events({
     "change #image-of-item" : function(event) {
@@ -283,6 +296,15 @@ function handleNoGeolocation(errorFlag) {
     uploading : function() {
       console.log(Session.get('uploading'));
       return Session.get('uploading');
+    },
+    login: function() {
+      return !Meteor.userId();
+    }
+  })
+
+  Template.searchSidebar.helpers({
+    login: function() {
+      return !Meteor.userId();
     }
   })
 
@@ -292,10 +314,13 @@ function handleNoGeolocation(errorFlag) {
       google.maps.event.addDomListener(window, 'load', initialize);
       return '';
     },
+    login: function() {
+      return !Meteor.userId();
+    }
   })
 
   Template.searchSidebar.events({
-    "click #searchSidebar" : function() {
+    "click #searchSidebarToggle" : function() {
       console.log("click");
       var bar = document.getElementById('searchSidebar');
       var barMargin = bar.style.marginRight.replace("px","");
@@ -345,7 +370,7 @@ function handleNoGeolocation(errorFlag) {
       return false;
     },
 
-    "click #sidebar" : function() {
+    "click #sidebarToggle" : function() {
       console.log("click");
       var bar = document.getElementById('sidebar');
       var barMargin = bar.style.marginLeft.replace("px","");
@@ -354,6 +379,26 @@ function handleNoGeolocation(errorFlag) {
       } else {
         bar.style.marginLeft = "-200px";
       }
+    }
+  })
+
+  Template.searchSidebar.events({
+    "click #do-the-thing" : function() {
+        console.log("doing the thing");
+        function searchListings(searchString) {
+          return ShareStuffDB.find({description: {$regex: searchString }});
+        }
+        var searchTerm = document.getElementById("name-to-search").value;
+        searchTermReg = new RegExp(searchTerm, 'i');
+        console.log("search term");
+        console.log(searchTermReg);
+        searchResults = searchListings(searchTermReg);
+        var searchArray = [];
+        searchResults.collection._docs.forEach(function(elt) {
+          searchArray.push(elt);
+        });
+        console.log(searchArray);
+        return searchArray;
     }
   })
 
@@ -560,8 +605,6 @@ Meteor.methods({
       username: username
     });
   },
-
-  
 
 
 
