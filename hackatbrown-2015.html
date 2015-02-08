@@ -40,20 +40,15 @@
   <div id="sidebar" class="{{#if login}}blurred{{/if}}">
     <img id="sidebarToggle" src="/circle-button.png">
     
-    <br><br>
+    <br>
+    <h2 style="margin:.5em;">Share</h2>
     <div id="accountTab">
-      <br>
       {{#if login}}
       {{else}}
         {{> loginButtons}}
       {{/if}}
-      <br><br><br><br><br>
-      <h2 style="margin:.5em;">Share</h2>
       
     </div>    
-    <br>
-    {{> nearby}}
-
     
     {{#if uploading}}
       {{> uploadItem}}
@@ -62,6 +57,12 @@
 	    <br>
 
     {{/if}}
+    {{#if login}}
+      {{populatedBorrowed}}
+    {{/if}}
+    <hr class="shortHr">
+    <h2 style="margin:.5em;">My Borrowed</h2>
+    <div id="borrowed-items-list"></div>
   </div>
 </template>
 
