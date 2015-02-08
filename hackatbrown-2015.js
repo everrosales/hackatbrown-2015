@@ -97,7 +97,7 @@ function handleNoGeolocation(errorFlag) {
         name:  name,
         img: imgData,
         deposit: deposit,
-        duration:duration
+        duration:duration,
         latitude: lat,
         longitude: lng
       }
