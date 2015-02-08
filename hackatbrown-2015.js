@@ -123,7 +123,7 @@ if (Meteor.isClient) {
           var src = "data:image/png;base64," + dataImage;
           list.insertAdjacentHTML('beforeend',
             '<div class="itemListing" style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
 
         }
         
@@ -456,8 +456,11 @@ function handleNoGeolocation(errorFlag) {
           createItemMarker(item);
           console.log("item");
           console.log(item);
-          list.insertAdjacentHTML('beforeend','<div class="itemListing">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
-            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
+          var dataImage = item.img;
+          var src = "data:image/png;base64," + dataImage;
+          list.insertAdjacentHTML('beforeend',
+            '<div class="itemListing" style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
+            ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>');
 
         }
         
