@@ -57,11 +57,9 @@
 	transition: margin-left 1s;
 }
 
-#sidebar:hover {
+/*#sidebar:hover {
 	margin-left: 0px;
-	-webkit-transition: margin-left 1s;
-	transition: margin-left 1s;
-}
+}*/
 
 #accountTab {
 	width:100%;
@@ -88,11 +86,9 @@
 	transition: margin-right 1s;
 }
 
-#searchSidebar:hover {
+/*#searchSidebar:hover {
 	margin-right: 0px;
-	-webkit-transition: margin-right 1s;
-	transition: margin-right 1s;
-}
+}*/
 
 #searchTab {
 	width:100%;
