@@ -139,6 +139,14 @@ h3 {
 	background: #ff5722;
 }
 
+.itemListing {
+	width: 200px;
+	height: 200px;
+	text-shadow: 0px 0px 5px #000000;
+	text-align: center;
+	font-size: 15px;
+}
+
 .map {
 	min-width:300px;
 	width: 100%;

@@ -16,6 +16,17 @@ if (Meteor.isClient) {
   function clearInnerHTML(id){
     document.getElementById(id).innerHTML = "";
   }
+
+  function getWindowInfo(itemInfo){
+    var address = "";
+    if(itemInfo.address!="" && itemInfo.address!=null && itemInfo.address!=undefined){
+      address = " at " + itemInfo.address;
+    }
+    var name = itemInfo.name;
+    return name + address;
+
+
+  }
   function sleep(delay) {
       var start = new Date().getTime();
       while (new Date().getTime() < start + delay);
@@ -52,14 +63,15 @@ if (Meteor.isClient) {
       streetViewControl: false,
       panControl: true,
       panControlOptions: {
-        position: google.maps.ControlPosition.RIGHT_CENTER
+        position: google.maps.ControlPosition.BOTTOM_CENTER
       },
       mapTypeControlOptions: {
           style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
           position: google.maps.ControlPosition.BOTTOM_CENTER
       },
       zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_CENTER
+          position: google.maps.ControlPosition.BOTTOM_CENTER,
+          style: google.maps.ZoomControlStyle.SMALL
       },
     };
     
@@ -104,9 +116,13 @@ if (Meteor.isClient) {
         clearInnerHTML('itemList');
         for(var i=0; i<nearbyThings.length; i++){
           var item = nearbyThings[i];
+          createItemMarker(item);
           console.log("item");
           console.log(item);
-          list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
+          var dataImage = item.img;
+          var src = "data:image/png;base64," + dataImage;
+          list.insertAdjacentHTML('beforeend',
+            '<div class="itemListing" style="background:url(\''+ src + '\') no-repeat;background-size:100%">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
             ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
 
         }
@@ -167,13 +183,23 @@ function handleNoGeolocation(errorFlag) {
   }
 
   function createItemMarker(itemInfo){
+    console.log("creating item marker");
     var des = itemInfo.description;
     var name = itemInfo.name;
     var deposit = itemInfo.deposit;
     var img = itemInfo.img;
     var duration= itemInfo.duration;
     var address = itemInfo.address;
-    var loc = google.maps.LatLng(itemInfo.latitude, itemInfo.longitude);
+    var loc = new google.maps.LatLng(itemInfo.lat, itemInfo.lng);
+
+    var marker = new google.maps.Marker({
+      position:loc
+    });
+    marker.setMap(map);
+    google.maps.event.addListener(marker, 'click', function(){
+      infowindow.setContent(getWindowInfo(itemInfo));
+      infowindow.open(map, this);
+    })
 
   }
 
@@ -206,12 +232,12 @@ function handleNoGeolocation(errorFlag) {
     console.log("inside getImage");
     // Create an empty canvas element
     var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = 200;
+    canvas.height = 200;
 
     // Copy the image contents to the canvas
     var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     // Get the data-URL formatted image
     var dataURL = canvas.toDataURL("image/png");
@@ -427,9 +453,10 @@ function handleNoGeolocation(errorFlag) {
         clearInnerHTML('itemList');
         for(var i=0; i<nearbyThings.length; i++){
           var item = nearbyThings[i];
+          createItemMarker(item);
           console.log("item");
           console.log(item);
-          list.insertAdjacentHTML('beforeend','<div>name: '+item.name+' address: ' +item.address+' duration: ' +item.duration+
+          list.insertAdjacentHTML('beforeend','<div class="itemListing">'+item.name+' address: ' +item.address+' duration: ' +item.duration+
             ' deposit: ' + item.deposit+ ' descrip: ' + item.description+ '</div>')
 
         }
