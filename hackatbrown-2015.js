@@ -2,9 +2,11 @@ ShareStuffDB = new Mongo.Collection("stuff");
 
 if (Meteor.isClient) {
   // counter starts at 0
+  pos = 41.8263;
   var lat;
   var lng;
   var image;
+  var pos;
   Session.setDefault("uploading", false);
   Session.set('uploading-image', false);
 
@@ -31,7 +33,7 @@ if (Meteor.isClient) {
     
     if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
-      var pos = new google.maps.LatLng(position.coords.latitude,
+      pos = new google.maps.LatLng(position.coords.latitude,
                                        position.coords.longitude);
 
       var marker = new google.maps.Marker({
@@ -44,8 +46,8 @@ if (Meteor.isClient) {
         infowindow.setContent("Current location");
         infowindow.open(map, this);
       });
-      infowindow.setContent("Current location");
-      infowindow.open(map, marker);
+      setTimeout(function(){infowindow.setContent("Current location");
+      infowindow.open(map, marker);}, 200);
 
 
       map.setCenter(pos);
@@ -86,11 +88,12 @@ function handleNoGeolocation(errorFlag) {
 
 
   function createUploadItem() {
+    console.log("inside createUploadItem");
     var description = document.getElementById("description-of-item").value;
     var name = document.getElementById("name-of-item").value;
     var output = document.getElementById('output');
-    var deposit = document.getElementById('deposit-for-item');
-    var duration = document.getElementById('duration');
+    var deposit = document.getElementById('deposit-for-item').value;
+    var duration = document.getElementById('duration').value;
     var imgData = getBase64Image(output);
     var item  = {
         description: description, 
@@ -107,6 +110,7 @@ function handleNoGeolocation(errorFlag) {
 
   // Handling Image Upload and Storage
   function getBase64Image(img) {
+    console.log("inside getImage");
     // Create an empty canvas element
     var canvas = document.createElement("canvas");
     canvas.width = img.width;
@@ -221,13 +225,29 @@ function handleNoGeolocation(errorFlag) {
     "click #upload-item" : function() {
       Session.set('uploading', false);
       var newListing = createUploadItem();
+      console.log("calling uploadItem");
       Meteor.call("uploadItem", newListing);
+      Meteor.flush();
 
       return false;
     },
     "click #cancel-item" : function(){
       Session.set("uploading", false);
       document.getElementById("upload-new-item").style.display='inline';
+    }
+  })
+
+  Template.nearby.events({
+    "click #explore" : function(){
+      if(pos != null && pos != undefined){
+        console.log("pos_lat");
+        console.log(pos.lat());
+        var nearbyThings = Meteor.call("nearbyListings", pos.lat(), pos.lng());
+        console.log(nearbyThings);
+      }else{
+        //error message saying location services disabled
+      }
+      
     }
   })
 }
@@ -259,6 +279,7 @@ Meteor.methods({
       owner: Meteor.userId(),
       username: Meteor.user().username,
     });
+
   },
 
 
@@ -269,6 +290,10 @@ Meteor.methods({
   },
 
   nearbyListings: function(target_lat, target_lng) {
+    console.log("target_lat");
+    console.log(target_lat);
+    console.log("target_lng");
+    console.log(target_lng);
     var lat_error = .01;
     var lng_error = .01;
     return ShareStuffDB.find({ 

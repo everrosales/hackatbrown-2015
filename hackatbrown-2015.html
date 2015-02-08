@@ -22,13 +22,17 @@
 <template name="sidebar">
   <div id="sidebar">
     {{> loginButtons}}
+    {{> nearby}}
     <br><br>
     
-    <button type='submit' id="upload-new-item" class="push">Upload Item</button>
-    <br>
+    
     
     {{#if uploading}}
       {{> uploadItem}}
+    {{else}}
+	    <button type='submit' id="upload-new-item" class="push">Upload Item</button>
+	    <br>
+
     {{/if}}
   </div>
 </template>
@@ -68,6 +72,12 @@
 </template>
 
 <template name="userAccount">
+</template>
+
+<template name="nearby">
+	<div id="nearbyDiv">
+		<button id="explore" class="push">Explore Nearby</button>
+	</div>
 </template>
 
 <template name="itemSearch">
